@@ -1043,6 +1043,22 @@
     /* ============================================================
        INCLUDED NOTE (game cards)
     ============================================================ */
+    .starter-badge {
+      background: transparent;
+      border: 1px solid #ffff00;
+      color: #ffff00;
+      font-size: 0.65rem;
+      padding: 2px 7px;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 1px;
+    }
+    .game-card.is-starter {
+      border-color: #ffff00;
+      box-shadow: 0 0 8px rgba(255,255,0,0.15);
+    }
+    .game-card.is-starter .included-note {
+      color: #aaaa00;
+    }
     .included-note {
       font-size: 0.7rem;
       color: #444;
@@ -1386,10 +1402,11 @@ ARCADE STYLE</h1>
         </div>
       </div>
 
-      <div class="game-card reveal" data-filter="4xx tier1">
+      <div class="game-card reveal is-starter" data-filter="4xx tier1">
         <div class="card-top">
           <span class="error-badge">404</span>
           <span class="tier-badge">TIER 1</span>
+          <span class="starter-badge">STARTER</span>
         </div>
         <div class="game-name">Maze Runner</div>
         <div class="game-inspired">Pac-Man inspired</div>
@@ -1610,10 +1627,11 @@ ARCADE STYLE</h1>
         </div>
       </div>
 
-      <div class="game-card reveal" data-filter="4xx tier1">
+      <div class="game-card reveal is-starter" data-filter="4xx tier1">
         <div class="card-top">
           <span class="error-badge">429</span>
           <span class="tier-badge">TIER 1</span>
+          <span class="starter-badge">STARTER</span>
         </div>
         <div class="game-name">Too Many Requests</div>
         <div class="game-inspired">Centipede inspired</div>
@@ -1667,10 +1685,11 @@ ARCADE STYLE</h1>
       </div>
 
       <!-- 5xx GAMES -->
-      <div class="game-card reveal" data-filter="5xx tier1">
+      <div class="game-card reveal is-starter" data-filter="5xx tier1">
         <div class="card-top">
           <span class="error-badge">500</span>
           <span class="tier-badge">TIER 1</span>
+          <span class="starter-badge">STARTER</span>
         </div>
         <div class="game-name">Asteroid Field</div>
         <div class="game-inspired">Asteroids inspired</div>
@@ -1725,10 +1744,11 @@ ARCADE STYLE</h1>
         </div>
       </div>
 
-      <div class="game-card reveal" data-filter="5xx tier1">
+      <div class="game-card reveal is-starter" data-filter="5xx tier1">
         <div class="card-top">
           <span class="error-badge">503</span>
           <span class="tier-badge">TIER 1</span>
+          <span class="starter-badge">STARTER</span>
         </div>
         <div class="game-name">Missile Defense</div>
         <div class="game-inspired">Missile Command inspired</div>
