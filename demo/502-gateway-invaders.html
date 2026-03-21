@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>502 Bad Gateway - Gateway Invaders</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 50%, #16213e 100%);
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .error-header {
+            text-align: center;
+            margin-bottom: 20px;
+            z-index: 10;
+            position: relative;
+        }
+        
+        .error-code {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #ff0040;
+            text-shadow: 0 0 20px #ff0040;
+            margin-bottom: 10px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        .error-message {
+            font-size: 1.5rem;
+            color: #00ff00;
+            margin-bottom: 10px;
+        }
+        
+        .game-subtitle {
+            font-size: 1rem;
+            color: #ffff00;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 20px #ff0040; }
+            to { text-shadow: 0 0 30px #ff0040, 0 0 40px #ff0040; }
+        }
+        
+        #gameCanvas {
+            border: 2px solid #00ff00;
+            box-shadow: 0 0 20px #00ff00;
+            background: #000;
+        }
+        
+        .controls {
+            margin-top: 20px;
+            text-align: center;
+            color: #ffffff;
+            font-size: 0.9rem;
+        }
+        
+        .controls span {
+            color: #ffff00;
+            font-weight: bold;
+        }
+        
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #888;
+        }
+        
+        .footer a {
+            color: #00ff00;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-shadow: 0 0 10px #00ff00;
+        }
+        
+        .score {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 1.2rem;
+            color: #ffff00;
+        }
+        
+        .lives {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.2rem;
+            color: #ff0040;
+        }
+    </style>
+</head>
+<body>
+    <div class="score">Score: <span id="score">0</span></div>
+    <div class="lives">Lives: <span id="lives">3</span></div>
+    
+    <div class="error-header">
+        <div class="error-code">502</div>
+        <div class="error-message">Bad Gateway Invaded!</div>
+        <div class="game-subtitle">Defend the Gateway! Destroy the 502 Invaders!</div>
+    </div>
+    
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    
+    <div class="controls">
+        <span>Arrow Keys</span> to move • <span>Spacebar</span> to shoot • <span>R</span> to restart<br>
+        Eliminate all 502 invaders to restore the gateway!
+    </div>
+    
+    <div class="footer">
+        <p>Gateway under attack! <a href="javascript:location.reload()">Retry Connection</a> | <a href="/">Return Home</a></p>
+        <p>502 Gateway Invaders Defense System v3.7</p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Game state
+        let game = {
+            score: 0,
+            lives: 3,
+            gameOver: false,
+            won: false,
+            keys: {},
+            lastShotTime: 0,
+            invaderDirection: 1, // 1 for right, -1 for left
+            invaderSpeed: 0.5,
+            invaderDropDistance: 25,
+            lastInvaderMoveTime: 0,
+            invaderMoveDelay: 700, // milliseconds between moves
+            autoRefreshTimer: 0,
+            lastInvaderShotTime: 0,
+            invaderShotDelay: 300 // Much more frequent shooting
+        };
+        
+        // Player ship
+        const player = {
+            x: canvas.width / 2 - 25,
+            y: canvas.height - 60,
+            width: 50,
+            height: 30,
+            speed: 6
+        };
+        
+        // Arrays for game objects
+        let bullets = [];
+        let invaders = [];
+        let invaderBullets = [];
+        let explosions = [];
+        
+        // Create invaders in formation spelling "502" - SMALLER and HIGHER
+        function createInvaders() {
+            const invaderWidth = 32; // Smaller invaders
+            const invaderHeight = 24;
+            const spacing = 45; // Tighter spacing
+            const startX = 200; // More centered
+            const startY = 50; // Higher up on screen
+            
+            // Smaller, more compact pattern for "502"
+            const pattern = [
+                [1,1,1,0,1,1,1,0,1,1,1],
+                [1,0,0,0,1,0,1,0,1,0,1],
+                [1,1,1,0,1,1,1,0,1,1,1],
+                [0,0,1,0,0,0,1,0,1,0,1],
+                [1,1,1,0,1,1,1,0,1,1,1],
+                [0,0,0,0,0,0,0,0,0,0,0], // Space between 5 and 02
+                [1,1,1,0,1,1,1,0,1,1,1],
+                [1,0,1,0,1,0,1,0,1,0,1]
+            ];
+            
+            invaders = [];
+            for (let row = 0; row < pattern.length; row++) {
+                for (let col = 0; col < pattern[row].length; col++) {
+                    if (pattern[row][col] === 1) {
+                        invaders.push({
+                            x: startX + col * spacing,
+                            y: startY + row * spacing,
+                            width: invaderWidth,
+                            height: invaderHeight,
+                            alive: true,
+                            type: row < 5 ? '5' : row < 6 ? 'space' : '02',
+                            originalX: startX + col * spacing,
+                            animFrame: 0,
+                            lastShotTime: Math.random() * 2000 // Random initial shot timing
+                        });
+                    }
+                }
+            }
+        }
+        
+        // Draw functions
+        function drawPlayer() {
+            ctx.fillStyle = '#00ff00';
+            // Draw player ship as triangle
+            ctx.beginPath();
+            ctx.moveTo(player.x + player.width / 2, player.y);
+            ctx.lineTo(player.x, player.y + player.height);
+            ctx.lineTo(player.x + player.width, player.y + player.height);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Add some detail
+            ctx.fillStyle = '#ffff00';
+            ctx.fillRect(player.x + player.width / 2 - 2, player.y + 10, 4, 15);
+        }
+        
+        function drawInvaders() {
+            invaders.forEach(invader => {
+                if (invader.alive) {
+                    ctx.fillStyle = invader.type === '5' ? '#ff0040' : invader.type === '02' ? '#ff8800' : '#ff0040';
+                    
+                    // Draw invader as pixelated creature with animation
+                    const size = 5; // Smaller pixels for smaller invaders
+                    const animOffset = Math.floor(Date.now() / 400) % 2; // Faster animation
+                    
+                    let pattern;
+                    if (invader.type === '5') {
+                        pattern = animOffset ? 
+                            [[1,0,1,0,1,0,1],[0,0,1,1,1,0,0],[0,1,1,1,1,1,0],[1,1,0,1,0,1,1],[1,0,1,1,1,0,1]] :
+                            [[0,1,0,1,0,1,0],[1,0,1,1,1,0,1],[1,1,1,1,1,1,1],[0,1,1,1,1,1,0],[1,0,1,0,1,0,1]];
+                    } else if (invader.type === '02') {
+                        pattern = animOffset ?
+                            [[0,0,1,1,1,0,0],[0,1,1,1,1,1,0],[1,1,0,1,0,1,1],[1,1,1,1,1,1,1],[0,1,0,1,0,1,0]] :
+                            [[0,1,1,1,1,1,0],[1,0,1,1,1,0,1],[1,1,1,1,1,1,1],[0,1,1,1,1,1,0],[1,0,0,0,0,0,1]];
+                    }
+                    
+                    if (pattern) {
+                        for (let row = 0; row < pattern.length; row++) {
+                            for (let col = 0; col < pattern[row].length; col++) {
+                                if (pattern[row][col]) {
+                                    ctx.fillRect(
+                                        invader.x + col * size,
+                                        invader.y + row * size,
+                                        size,
+                                        size
+                                    );
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Draw type text - smaller
+                    if (invader.type !== 'space') {
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = 'bold 12px Courier New';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(invader.type, invader.x + invader.width/2, invader.y + invader.height + 16);
+                    }
+                }
+            });
+        }
+        
+        function drawBullets() {
+            ctx.fillStyle = '#ffff00';
+            bullets.forEach(bullet => {
+                ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+            });
+            
+            ctx.fillStyle = '#ff0040';
+            invaderBullets.forEach(bullet => {
+                ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+            });
+        }
+        
+        function drawExplosions() {
+            explosions.forEach(explosion => {
+                ctx.fillStyle = `rgba(255, ${Math.floor(explosion.life * 255)}, 0, ${explosion.life})`;
+                ctx.beginPath();
+                ctx.arc(explosion.x, explosion.y, explosion.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Add some sparks
+                for (let i = 0; i < 8; i++) {
+                    const angle = (i / 8) * Math.PI * 2;
+                    const sparkX = explosion.x + Math.cos(angle) * explosion.size * 1.5;
+                    const sparkY = explosion.y + Math.sin(angle) * explosion.size * 1.5;
+                    ctx.fillRect(sparkX, sparkY, 2, 2);
+                }
+            });
+        }
+        
+        function drawUI() {
+            document.getElementById('score').textContent = game.score;
+            document.getElementById('lives').textContent = game.lives;
+            
+            if (game.gameOver) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = game.won ? '#00ff00' : '#ff0040';
+                ctx.font = '48px Courier New';
+                ctx.textAlign = 'center';
+                
+                if (game.won) {
+                    ctx.fillText('GATEWAY SECURED!', canvas.width / 2, canvas.height / 2 - 50);
+                    
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = '24px Courier New';
+                    ctx.fillText('All invaders eliminated!', canvas.width / 2, canvas.height / 2);
+                    
+                    ctx.fillStyle = '#ffff00';
+                    ctx.font = '18px Courier New';
+                    const refreshTime = Math.max(0, 5 - Math.floor(game.autoRefreshTimer / 1000));
+                    ctx.fillText(`Refreshing in ${refreshTime} seconds...`, canvas.width / 2, canvas.height / 2 + 30);
+                    ctx.fillText('Press R to restart or wait for auto-refresh', canvas.width / 2, canvas.height / 2 + 60);
+                } else {
+                    ctx.fillText('GATEWAY DESTROYED!', canvas.width / 2, canvas.height / 2 - 50);
+                    
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = '24px Courier New';
+                    ctx.fillText('The 502 invaders won!', canvas.width / 2, canvas.height / 2);
+                    
+                    ctx.fillStyle = '#ffff00';
+                    ctx.font = '18px Courier New';
+                    ctx.fillText('Press R to restart or refresh to retry connection', canvas.width / 2, canvas.height / 2 + 50);
+                }
+            }
+        }
+        
+        // Game logic
+        function updatePlayer() {
+            if (game.keys['ArrowLeft'] && player.x > 0) {
+                player.x -= player.speed;
+            }
+            if (game.keys['ArrowRight'] && player.x < canvas.width - player.width) {
+                player.x += player.speed;
+            }
+        }
+        
+        function updateInvaders() {
+            const now = Date.now();
+            
+            // Move invaders side to side like classic Space Invaders
+            if (now - game.lastInvaderMoveTime > game.invaderMoveDelay) {
+                let shouldDrop = false;
+                const aliveInvaders = invaders.filter(inv => inv.alive);
+                
+                // Check if any invader hits the edge
+                aliveInvaders.forEach(invader => {
+                    const nextX = invader.x + (game.invaderDirection * 35); // Smaller movement
+                    if (nextX <= 0 || nextX >= canvas.width - invader.width) {
+                        shouldDrop = true;
+                    }
+                });
+                
+                // Move or drop invaders
+                aliveInvaders.forEach(invader => {
+                    if (shouldDrop) {
+                        invader.y += game.invaderDropDistance;
+                    } else {
+                        invader.x += game.invaderDirection * 35; // Smaller steps
+                    }
+                });
+                
+                // Change direction if dropping
+                if (shouldDrop) {
+                    game.invaderDirection *= -1;
+                    // Increase speed slightly as invaders are destroyed
+                    game.invaderMoveDelay = Math.max(150, game.invaderMoveDelay - 15);
+                }
+                
+                game.lastInvaderMoveTime = now;
+            }
+            
+            // Much more frequent shooting from ALL different aliens
+            const aliveInvaders = invaders.filter(inv => inv.alive);
+            aliveInvaders.forEach(invader => {
+                // Each invader has its own shooting timer
+                if (now - invader.lastShotTime > (1500 + Math.random() * 3000)) { // 0.5-1.5 seconds
+                    // Higher chance to shoot, especially lower invaders
+                    const isBottomRow = invader.y > 200;
+                    const shootChance = isBottomRow ? 0.001875 : 0.0009375; // Bottom invaders shoot more
+                    
+                    if (Math.random() < shootChance) {
+                        invaderBullets.push({
+                            x: invader.x + invader.width / 2,
+                            y: invader.y + invader.height,
+                            width: 3,
+                            height: 10,
+                            speed: 1.125 + Math.random() * 0.5625 // Variable bullet speed
+                        });
+                        invader.lastShotTime = now;
+                    }
+                }
+            });
+        }
+        
+        function updateBullets() {
+            // Update player bullets
+            bullets.forEach((bullet, index) => {
+                bullet.y -= bullet.speed;
+                if (bullet.y < 0) {
+                    bullets.splice(index, 1);
+                }
+            });
+            
+            // Update invader bullets
+            invaderBullets.forEach((bullet, index) => {
+                bullet.y += bullet.speed;
+                if (bullet.y > canvas.height) {
+                    invaderBullets.splice(index, 1);
+                }
+            });
+        }
+        
+        function updateExplosions() {
+            explosions.forEach((explosion, index) => {
+                explosion.life -= 0.02;
+                explosion.size += 0.5;
+                if (explosion.life <= 0) {
+                    explosions.splice(index, 1);
+                }
+            });
+        }
+        
+        function checkCollisions() {
+            // Player bullets vs invaders
+            bullets.forEach((bullet, bulletIndex) => {
+                invaders.forEach((invader, invaderIndex) => {
+                    if (invader.alive &&
+                        bullet.x < invader.x + invader.width &&
+                        bullet.x + bullet.width > invader.x &&
+                        bullet.y < invader.y + invader.height &&
+                        bullet.y + bullet.height > invader.y) {
+                        
+                        // Hit!
+                        bullets.splice(bulletIndex, 1);
+                        invader.alive = false;
+                        game.score += invader.type === '5' ? 50 : invader.type === '02' ? 30 : 10;
+                        
+                        // Add explosion
+                        explosions.push({
+                            x: invader.x + invader.width / 2,
+                            y: invader.y + invader.height / 2,
+                            size: 5,
+                            life: 1
+                        });
+                    }
+                });
+            });
+            
+            // Invader bullets vs player
+            invaderBullets.forEach((bullet, index) => {
+                if (bullet.x < player.x + player.width &&
+                    bullet.x + bullet.width > player.x &&
+                    bullet.y < player.y + player.height &&
+                    bullet.y + bullet.height > player.y) {
+                    
+                    // Player hit!
+                    invaderBullets.splice(index, 1);
+                    game.lives--;
+                    
+                    // Add explosion
+                    explosions.push({
+                        x: player.x + player.width / 2,
+                        y: player.y + player.height / 2,
+                        size: 15,
+                        life: 1
+                    });
+                    
+                    if (game.lives <= 0) {
+                        game.gameOver = true;
+                    }
+                }
+            });
+        }
+        
+        function checkWinCondition() {
+            if (invaders.filter(inv => inv.alive).length === 0) {
+                game.won = true;
+                game.gameOver = true;
+                game.autoRefreshTimer = 0; // Start auto-refresh timer
+            }
+        }
+        
+        function handleAutoRefresh() {
+            if (game.won && game.gameOver) {
+                game.autoRefreshTimer += 16; // Roughly 60fps
+                if (game.autoRefreshTimer >= 5000) { // 5 seconds
+                    // Refresh the page to retry connection
+                    location.reload();
+                }
+            }
+        }
+        
+        function shoot() {
+            const now = Date.now();
+            if (now - game.lastShotTime > 150) { // Faster player shooting
+                bullets.push({
+                    x: player.x + player.width / 2 - 2,
+                    y: player.y,
+                    width: 4,
+                    height: 15,
+                    speed: 12 // Faster bullets
+                });
+                game.lastShotTime = now;
+            }
+        }
+        
+        function restart() {
+            game.score = 0;
+            game.lives = 3;
+            game.gameOver = false;
+            game.won = false;
+            game.invaderDirection = 1;
+            game.invaderSpeed = 0.5;
+            game.invaderMoveDelay = 700;
+            game.autoRefreshTimer = 0;
+            bullets = [];
+            invaderBullets = [];
+            explosions = [];
+            player.x = canvas.width / 2 - 25;
+            createInvaders();
+        }
+        
+        // Game loop
+        function gameLoop() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (!game.gameOver) {
+                updatePlayer();
+                updateBullets();
+                updateInvaders();
+                updateExplosions();
+                checkCollisions();
+                checkWinCondition();
+            } else {
+                handleAutoRefresh();
+            }
+            
+            // Draw everything
+            drawPlayer();
+            drawInvaders();
+            drawBullets();
+            drawExplosions();
+            drawUI();
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Event listeners
+        document.addEventListener('keydown', (e) => {
+            game.keys[e.code] = true;
+            
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (!game.gameOver) {
+                    shoot();
+                }
+            }
+            
+            if (e.code === 'KeyR') {
+                restart();
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            game.keys[e.code] = false;
+        });
+        
+        // Initialize game
+        createInvaders();
+        gameLoop();
+        
+        // Add some stars in the background
+        function drawStars() {
+            for (let i = 0; i < 100; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const size = Math.random() * 2;
+                
+                ctx.fillStyle = `rgba(255, 255, 255, ${Math.random()})`;
+                ctx.fillRect(x, y, size, size);
+            }
+        }
+        
+        // Draw stars once at the beginning
+        drawStars();
+    </script>
+</body>
+</html> 

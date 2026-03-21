@@ -1,0 +1,2169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arcade Errors — HTTP Error Pages as Arcade Games</title>
+  <meta name="description" content="35 fully playable arcade games, one per HTTP error code. Drop-in HTML files, zero dependencies. For nginx, Apache, Caddy and any web server.">
+  <meta property="og:title" content="Arcade Errors — HTTP Error Pages, Arcade Style">
+  <meta property="og:description" content="35 fully playable arcade games. One per HTTP error code. Drop-in HTML. Zero dependencies.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://arcadeerrors.com">
+  <meta property="og:image" content="https://arcadeerrors.com/og-image.png">
+  <script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>
+  <style>
+    /* ============================================================
+       RESET & BASE
+    ============================================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --green: #00ff00;
+      --red: #ff0040;
+      --yellow: #ffff00;
+      --bg: #0a0a0f;
+      --bg-card: #0f0f0f;
+      --bg-nav: #06060a;
+      --green-dim: rgba(0,255,0,0.2);
+      --green-glow: 0 0 8px #00ff00, 0 0 20px rgba(0,255,0,0.4);
+      --red-glow: 0 0 8px #ff0040, 0 0 20px rgba(255,0,64,0.4);
+      --yellow-glow: 0 0 8px #ffff00, 0 0 20px rgba(255,255,0,0.4);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--green);
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Scanline overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 1px,
+        rgba(0,0,0,0.03) 1px,
+        rgba(0,0,0,0.03) 2px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; }
+
+    /* ============================================================
+       SCROLLBAR
+    ============================================================ */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--green); }
+
+    /* ============================================================
+       UTILITY
+    ============================================================ */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .section-title {
+      font-size: clamp(18px, 3vw, 26px);
+      color: var(--green);
+      text-shadow: var(--green-glow);
+      margin-bottom: 48px;
+      letter-spacing: 2px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border: 1px solid currentColor;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 13px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: transparent;
+      text-decoration: none;
+    }
+
+    .btn-green {
+      color: var(--green);
+      border-color: var(--green);
+    }
+    .btn-green:hover {
+      background: var(--green);
+      color: var(--bg);
+      box-shadow: var(--green-glow);
+    }
+
+    .btn-red {
+      color: #fff;
+      background: var(--red);
+      border-color: var(--red);
+    }
+    .btn-red:hover {
+      box-shadow: var(--red-glow);
+      background: #ff2255;
+    }
+
+    .btn-yellow {
+      color: var(--yellow);
+      border-color: var(--yellow);
+    }
+    .btn-yellow:hover {
+      background: var(--yellow);
+      color: var(--bg);
+      box-shadow: var(--yellow-glow);
+    }
+
+    /* Scroll reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ============================================================
+       NAVBAR
+    ============================================================ */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: var(--bg-nav);
+      border-bottom: 1px solid rgba(0,255,0,0.2);
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .navbar-logo {
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--green);
+      text-shadow: var(--green-glow);
+      letter-spacing: 2px;
+      white-space: nowrap;
+    }
+
+    .navbar-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      list-style: none;
+    }
+
+    .navbar-links a {
+      color: rgba(0,255,0,0.7);
+      font-size: 13px;
+      padding: 6px 12px;
+      letter-spacing: 1px;
+      transition: color 0.2s;
+    }
+    .navbar-links a:hover { color: var(--green); }
+
+    .navbar-cta {
+      padding: 8px 16px;
+      background: var(--red);
+      color: #fff !important;
+      border: none;
+      font-size: 12px !important;
+      letter-spacing: 1px;
+      transition: box-shadow 0.2s !important;
+    }
+    .navbar-cta:hover {
+      box-shadow: var(--red-glow) !important;
+    }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px;
+    }
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--green);
+      transition: all 0.3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 56px;
+      left: 0; right: 0;
+      background: var(--bg-nav);
+      border-bottom: 1px solid rgba(0,255,0,0.2);
+      padding: 16px 24px;
+      z-index: 999;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      color: rgba(0,255,0,0.8);
+      font-size: 14px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(0,255,0,0.1);
+    }
+
+    /* ============================================================
+       HERO
+    ============================================================ */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 80px 24px 0;
+    }
+
+    #starCanvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      max-width: 900px;
+    }
+
+    .hero-headline {
+      font-size: clamp(32px, 8vw, 80px);
+      font-weight: bold;
+      color: var(--green);
+      text-shadow: 0 0 10px #00ff00, 0 0 30px rgba(0,255,0,0.6), 0 0 60px rgba(0,255,0,0.2);
+      line-height: 1.1;
+      letter-spacing: 4px;
+      white-space: pre-line;
+      margin-bottom: 24px;
+    }
+
+    .hero-sub {
+      font-size: clamp(13px, 2vw, 17px);
+      color: rgba(0,255,0,0.8);
+      max-width: 600px;
+      margin: 0 auto 40px;
+      letter-spacing: 1px;
+      line-height: 1.8;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 60px;
+    }
+
+    .hero-ctas .btn {
+      font-size: 14px;
+      padding: 14px 28px;
+      letter-spacing: 2px;
+    }
+
+    /* Arcade cabinet */
+    .arcade-cabinet {
+      position: relative;
+      z-index: 1;
+      margin: 0 auto;
+      width: min(320px, 80vw);
+    }
+
+    .cabinet-svg {
+      width: 100%;
+      height: auto;
+      filter: drop-shadow(0 0 12px rgba(0,255,0,0.5));
+    }
+
+    /* Invader screen animation */
+    .invader-row {
+      animation: invaderFloat 2s ease-in-out infinite alternate;
+    }
+    @keyframes invaderFloat {
+      from { transform: translateX(0); }
+      to { transform: translateX(6px); }
+    }
+
+    /* Scrolling marquee */
+    .marquee-wrap {
+      width: 100%;
+      background: rgba(255,0,64,0.08);
+      border-top: 1px solid rgba(255,0,64,0.3);
+      border-bottom: 1px solid rgba(255,0,64,0.3);
+      overflow: hidden;
+      padding: 10px 0;
+      position: relative;
+      z-index: 1;
+      margin-top: 40px;
+    }
+
+    .marquee-track {
+      display: flex;
+      width: max-content;
+      animation: marqueeScroll 20s linear infinite;
+    }
+
+    .marquee-track span {
+      color: var(--red);
+      font-size: 13px;
+      letter-spacing: 3px;
+      padding: 0 8px;
+      white-space: nowrap;
+      text-shadow: 0 0 6px rgba(255,0,64,0.6);
+    }
+
+    @keyframes marqueeScroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* ============================================================
+       HOW IT WORKS
+    ============================================================ */
+    .how-section {
+      padding: 100px 24px;
+      background: #080810;
+      text-align: center;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .step-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(0,255,0,0.3);
+      padding: 32px 24px;
+      text-align: left;
+      transition: border-color 0.3s, box-shadow 0.3s;
+      cursor: default;
+    }
+    .step-card:hover {
+      border-color: var(--green);
+      box-shadow: var(--green-glow);
+    }
+
+    .step-num {
+      font-size: 28px;
+      color: var(--yellow);
+      text-shadow: var(--yellow-glow);
+      margin-bottom: 12px;
+      font-weight: bold;
+    }
+
+    .step-title {
+      font-size: 16px;
+      color: var(--green);
+      margin-bottom: 16px;
+      letter-spacing: 1px;
+    }
+
+    .step-desc {
+      color: rgba(0,255,0,0.6);
+      font-size: 13px;
+      margin-bottom: 20px;
+      line-height: 1.7;
+    }
+
+    .code-block {
+      background: #050508;
+      border: 1px solid rgba(0,255,0,0.2);
+      padding: 14px 16px;
+      font-size: 11px;
+      color: rgba(0,255,0,0.75);
+      line-height: 1.8;
+      overflow-x: auto;
+      position: relative;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .code-block:hover { border-color: rgba(0,255,0,0.5); }
+    .code-block .copy-hint {
+      position: absolute;
+      top: 8px; right: 8px;
+      font-size: 10px;
+      color: rgba(0,255,0,0.4);
+      letter-spacing: 1px;
+    }
+    .code-block .copied-flash {
+      display: none;
+      position: absolute;
+      top: 8px; right: 8px;
+      font-size: 10px;
+      color: var(--yellow);
+      letter-spacing: 1px;
+    }
+    .code-block.copied .copy-hint { display: none; }
+    .code-block.copied .copied-flash { display: block; }
+    .code-comment { color: rgba(0,255,0,0.4); }
+
+    /* ============================================================
+       GAMES GRID
+    ============================================================ */
+    .games-section {
+      padding: 100px 24px;
+      background: var(--bg);
+    }
+
+    .games-header {
+      display: flex;
+      align-items: baseline;
+      gap: 20px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+
+    .filter-btn {
+      background: transparent;
+      border: 1px solid rgba(0,255,0,0.35);
+      color: rgba(0,255,0,0.7);
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 12px;
+      padding: 7px 14px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      border-color: var(--green);
+      color: var(--green);
+      background: rgba(0,255,0,0.08);
+      box-shadow: 0 0 8px rgba(0,255,0,0.2);
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .game-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(0,255,0,0.25);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s, opacity 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .game-card:hover {
+      border-color: var(--green);
+      box-shadow: 0 0 16px rgba(0,255,0,0.3);
+      transform: scale(1.02);
+    }
+    .game-card.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.95);
+      position: absolute;
+      visibility: hidden;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .error-badge {
+      background: var(--red);
+      color: #fff;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 3px 8px;
+      letter-spacing: 1px;
+    }
+
+    .tier-badge {
+      font-size: 10px;
+      color: rgba(0,255,0,0.5);
+      border: 1px solid rgba(0,255,0,0.3);
+      padding: 2px 6px;
+      letter-spacing: 1px;
+    }
+
+    .free-badge {
+      background: var(--green);
+      color: var(--bg);
+      font-size: 10px;
+      font-weight: bold;
+      padding: 2px 6px;
+      letter-spacing: 1px;
+    }
+
+    .game-name {
+      color: var(--yellow);
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .game-inspired {
+      color: rgba(255,255,255,0.35);
+      font-size: 11px;
+      margin-top: -6px;
+    }
+
+    .game-desc {
+      color: rgba(0,255,0,0.65);
+      font-size: 12px;
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .card-actions .btn {
+      font-size: 11px;
+      padding: 6px 10px;
+      flex: 1;
+      text-align: center;
+    }
+
+    /* ============================================================
+       PRICING
+    ============================================================ */
+    .pricing-section {
+      padding: 100px 24px;
+      background: #080810;
+      text-align: center;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 960px;
+      margin: 0 auto 40px;
+      align-items: start;
+    }
+
+    .pricing-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(0,255,0,0.3);
+      padding: 36px 28px;
+      text-align: left;
+      position: relative;
+      transition: box-shadow 0.3s;
+    }
+
+    .pricing-card.featured {
+      border-color: var(--red);
+      box-shadow: 0 0 24px rgba(255,0,64,0.2);
+      transform: scale(1.03);
+    }
+    .pricing-card.yellow-border { border-color: rgba(255,255,0,0.4); }
+    .pricing-card.yellow-border:hover { box-shadow: var(--yellow-glow); }
+    .pricing-card.green-border:hover { box-shadow: var(--green-glow); }
+
+    .pricing-badge {
+      position: absolute;
+      top: -12px;
+      right: 20px;
+      background: var(--red);
+      color: #fff;
+      font-size: 10px;
+      padding: 4px 10px;
+      letter-spacing: 2px;
+      font-weight: bold;
+    }
+
+    .pricing-plan {
+      font-size: 13px;
+      color: rgba(0,255,0,0.6);
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+
+    .pricing-price {
+      font-size: clamp(28px, 5vw, 40px);
+      color: var(--green);
+      text-shadow: var(--green-glow);
+      font-weight: bold;
+      margin-bottom: 4px;
+      letter-spacing: 2px;
+    }
+    .pricing-card.featured .pricing-price { color: var(--red); text-shadow: var(--red-glow); }
+    .pricing-card.yellow-border .pricing-price { color: var(--yellow); text-shadow: var(--yellow-glow); }
+
+    .pricing-period {
+      font-size: 12px;
+      color: rgba(0,255,0,0.5);
+      margin-bottom: 8px;
+    }
+
+    .pricing-tagline {
+      font-size: 13px;
+      color: rgba(0,255,0,0.8);
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(0,255,0,0.15);
+    }
+
+    .pricing-features {
+      list-style: none;
+      margin-bottom: 28px;
+    }
+    .pricing-features li {
+      font-size: 12px;
+      color: rgba(0,255,0,0.7);
+      padding: 6px 0;
+      padding-left: 20px;
+      position: relative;
+    }
+    .pricing-features li::before {
+      content: '▶';
+      position: absolute;
+      left: 0;
+      color: var(--green);
+      font-size: 8px;
+      top: 9px;
+    }
+
+    .pricing-annual-note {
+      font-size: 11px;
+      color: var(--yellow);
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+    }
+
+    .pricing-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      font-size: 11px;
+      color: rgba(0,255,0,0.6);
+    }
+
+    .toggle-switch {
+      width: 44px;
+      height: 22px;
+      background: rgba(0,255,0,0.15);
+      border: 1px solid rgba(0,255,0,0.4);
+      border-radius: 11px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.2s;
+    }
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 16px; height: 16px;
+      background: var(--green);
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    .toggle-switch.annual::after { transform: translateX(22px); }
+    .toggle-switch.annual { background: rgba(0,255,0,0.25); }
+
+    .pricing-cta-wrap { display: flex; flex-direction: column; gap: 8px; }
+
+    .pricing-cta-wrap .btn {
+      text-align: center;
+      display: block;
+      padding: 12px 20px;
+      font-size: 13px;
+      letter-spacing: 1px;
+    }
+
+    .pricing-assurance {
+      text-align: center;
+      color: rgba(0,255,0,0.4);
+      font-size: 11px;
+      letter-spacing: 1px;
+      max-width: 700px;
+      margin: 0 auto;
+      padding-top: 8px;
+    }
+
+    /* ============================================================
+       FREE GAME CTA
+    ============================================================ */
+    .free-cta-section {
+      padding: 80px 24px;
+      background: radial-gradient(ellipse at center, rgba(255,0,64,0.08) 0%, var(--bg) 70%);
+      border-top: 1px solid rgba(255,0,64,0.2);
+      border-bottom: 1px solid rgba(255,0,64,0.2);
+      text-align: center;
+    }
+
+    .free-cta-section h2 {
+      font-size: clamp(20px, 4vw, 36px);
+      color: var(--green);
+      text-shadow: var(--green-glow);
+      margin-bottom: 16px;
+      letter-spacing: 3px;
+    }
+
+    .free-cta-section p {
+      color: rgba(0,255,0,0.65);
+      font-size: 14px;
+      margin-bottom: 36px;
+      letter-spacing: 1px;
+    }
+
+    .free-cta-section .btn {
+      font-size: 16px;
+      padding: 18px 40px;
+      letter-spacing: 3px;
+    }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    footer {
+      background: var(--bg-nav);
+      border-top: 1px solid rgba(0,255,0,0.15);
+      padding: 48px 24px 0;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 32px;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding-bottom: 40px;
+      border-bottom: 1px solid rgba(0,255,0,0.1);
+    }
+
+    .footer-logo {
+      font-size: 15px;
+      color: var(--green);
+      text-shadow: var(--green-glow);
+      font-weight: bold;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+
+    .footer-tagline {
+      color: rgba(0,255,0,0.45);
+      font-size: 11px;
+      margin-bottom: 8px;
+      line-height: 1.7;
+    }
+
+    .footer-copy {
+      color: rgba(0,255,0,0.3);
+      font-size: 11px;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .footer-links a {
+      color: rgba(0,255,0,0.55);
+      font-size: 12px;
+      letter-spacing: 1px;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--green); }
+
+    .footer-right {
+      color: rgba(0,255,0,0.45);
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding: 16px 0;
+      color: rgba(0,255,0,0.25);
+      font-size: 11px;
+      letter-spacing: 2px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    /* ============================================================
+       MODAL
+    ============================================================ */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.95);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal-inner {
+      position: relative;
+      width: min(900px, 95vw);
+      height: min(700px, 90vh);
+      border: 1px solid var(--green);
+      box-shadow: var(--green-glow);
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(0,255,0,0.25);
+      flex-shrink: 0;
+    }
+
+    .modal-title {
+      color: var(--green);
+      font-size: 13px;
+      letter-spacing: 2px;
+    }
+
+    .modal-close {
+      background: none;
+      border: 1px solid rgba(0,255,0,0.4);
+      color: var(--green);
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 13px;
+      padding: 4px 10px;
+      cursor: pointer;
+      letter-spacing: 1px;
+      transition: all 0.2s;
+    }
+    .modal-close:hover {
+      background: var(--red);
+      border-color: var(--red);
+      color: #fff;
+    }
+
+    .modal-iframe {
+      flex: 1;
+      border: none;
+      width: 100%;
+      background: var(--bg);
+    }
+
+    .modal-preview-unavail {
+      display: none;
+      flex: 1;
+      background: #050508;
+      color: var(--green);
+      font-family: 'Courier New', Courier, monospace;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 20px;
+      text-align: center;
+      padding: 40px 24px;
+    }
+    .modal-preview-unavail.visible { display: flex; }
+
+    .modal-insert-coin {
+      font-size: clamp(22px, 4vw, 36px);
+      font-weight: bold;
+      color: var(--yellow);
+      text-shadow: var(--yellow-glow);
+      letter-spacing: 4px;
+      animation: coinBlink 1s step-start infinite;
+    }
+    @keyframes coinBlink {
+      50% { opacity: 0.3; }
+    }
+
+    .modal-unavail-msg {
+      color: rgba(0,255,0,0.7);
+      font-size: 14px;
+      letter-spacing: 1px;
+      line-height: 1.9;
+    }
+
+    .modal-buy-btn {
+      display: inline-block;
+      padding: 14px 32px;
+      background: var(--red);
+      color: #fff;
+      border: 1px solid var(--red);
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: box-shadow 0.2s;
+      margin-top: 8px;
+    }
+    .modal-buy-btn:hover { box-shadow: var(--red-glow); }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 960px) {
+      .games-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .footer-right { grid-column: 1 / -1; }
+    }
+
+    @media (max-width: 640px) {
+      .navbar-links { display: none; }
+      .hamburger { display: flex; }
+      .games-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .pricing-card.featured { transform: none; }
+      .hero-headline { letter-spacing: 2px; }
+      .hero-ctas .btn { width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============================================================
+     NAVBAR
+============================================================ -->
+<nav class="navbar">
+  <a href="#" class="navbar-logo">[ ARCADE ERRORS ]</a>
+
+  <ul class="navbar-links" role="navigation">
+    <li><a href="#games">Games ↓</a></li>
+    <li><a href="#pricing">Pricing ↓</a></li>
+    <li><a href="#how">How it works ↓</a></li>
+    <!-- TODO: replace with real Lemon Squeezy variant ID -->
+    <li><a href="./demo/502-gateway-invaders.html" class="navbar-cta">Get free game →</a></li>
+  </ul>
+
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#games" onclick="closeMobileMenu()">Games ↓</a>
+  <a href="#pricing" onclick="closeMobileMenu()">Pricing ↓</a>
+  <a href="#how" onclick="closeMobileMenu()">How it works ↓</a>
+  <a href="./demo/502-gateway-invaders.html" class="btn btn-red" style="text-align:center;margin-top:8px;">Get free game →</a>
+</div>
+
+
+<!-- ============================================================
+     HERO
+============================================================ -->
+<section class="hero" id="home">
+  <canvas id="starCanvas"></canvas>
+
+  <div class="hero-content">
+    <h1 class="hero-headline">HTTP ERRORS,
+ARCADE STYLE</h1>
+    <p class="hero-sub">35 fully playable arcade games. One per HTTP error code.<br>Drop-in HTML. Zero dependencies.</p>
+
+    <div class="hero-ctas">
+      <a href="#games" class="btn btn-green">[ PLAY FREE DEMO ]</a>
+      <!-- TODO: replace with real Lemon Squeezy variant ID -->
+      <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_MONTHLY"
+         class="btn btn-red lemonsqueezy-button">[ GET THE FULL PACK ]</a>
+    </div>
+
+    <!-- Arcade Cabinet SVG -->
+    <div class="arcade-cabinet">
+      <svg class="cabinet-svg" viewBox="0 0 240 340" xmlns="http://www.w3.org/2000/svg" fill="none">
+        <!-- Cabinet body -->
+        <rect x="30" y="80" width="180" height="240" rx="4" stroke="#00ff00" stroke-width="1.5"/>
+        <!-- Cabinet top arch -->
+        <path d="M30 80 Q30 30 120 20 Q210 30 210 80" stroke="#00ff00" stroke-width="1.5" fill="none"/>
+        <!-- Marquee area -->
+        <rect x="40" y="30" width="160" height="35" rx="2" stroke="#00ff00" stroke-width="1" fill="rgba(0,255,0,0.05)"/>
+        <text x="120" y="52" text-anchor="middle" fill="#00ff00" font-family="Courier New" font-size="11" letter-spacing="2">ARCADE ERRORS</text>
+        <!-- Screen bezel -->
+        <rect x="45" y="90" width="150" height="120" rx="3" stroke="#00ff00" stroke-width="1.5" fill="rgba(0,0,0,0.8)"/>
+        <!-- Screen inner -->
+        <rect x="52" y="97" width="136" height="106" rx="2" stroke="rgba(0,255,0,0.4)" stroke-width="1" fill="rgba(0,10,0,0.9)"/>
+
+        <!-- Space Invaders "502" formation on screen -->
+        <!-- Row of invaders spelling 502 area -->
+        <!-- Score line -->
+        <text x="62" y="110" fill="rgba(0,255,0,0.6)" font-family="Courier New" font-size="7">SCORE: 0000   HI: 9990</text>
+
+        <!-- Invader row 1 -->
+        <g class="invader-row" style="animation-delay:0s">
+          <text x="62"  y="124" fill="#ff0040" font-family="Courier New" font-size="9">ψ</text>
+          <text x="76"  y="124" fill="#ff0040" font-family="Courier New" font-size="9">ψ</text>
+          <text x="90"  y="124" fill="#ff0040" font-family="Courier New" font-size="9">ψ</text>
+          <text x="104" y="124" fill="#ff0040" font-family="Courier New" font-size="9">ψ</text>
+          <text x="118" y="124" fill="#ff0040" font-family="Courier New" font-size="9">ψ</text>
+          <text x="132" y="124" fill="#ff0040" font-family="Courier New" font-size="9">ψ</text>
+          <text x="146" y="124" fill="#ff0040" font-family="Courier New" font-size="9">ψ</text>
+          <text x="160" y="124" fill="#ff0040" font-family="Courier New" font-size="9">ψ</text>
+          <text x="174" y="124" fill="#ff0040" font-family="Courier New" font-size="9">ψ</text>
+        </g>
+        <!-- Invader row 2 -->
+        <g class="invader-row" style="animation-delay:0.15s">
+          <text x="62"  y="138" fill="#ffff00" font-family="Courier New" font-size="9">Ω</text>
+          <text x="76"  y="138" fill="#ffff00" font-family="Courier New" font-size="9">Ω</text>
+          <text x="90"  y="138" fill="#ffff00" font-family="Courier New" font-size="9">Ω</text>
+          <text x="104" y="138" fill="#ffff00" font-family="Courier New" font-size="9">Ω</text>
+          <text x="118" y="138" fill="#ffff00" font-family="Courier New" font-size="9">Ω</text>
+          <text x="132" y="138" fill="#ffff00" font-family="Courier New" font-size="9">Ω</text>
+          <text x="146" y="138" fill="#ffff00" font-family="Courier New" font-size="9">Ω</text>
+          <text x="160" y="138" fill="#ffff00" font-family="Courier New" font-size="9">Ω</text>
+          <text x="174" y="138" fill="#ffff00" font-family="Courier New" font-size="9">Ω</text>
+        </g>
+        <!-- Invader row 3 -->
+        <g class="invader-row" style="animation-delay:0.3s">
+          <text x="62"  y="152" fill="#00ff00" font-family="Courier New" font-size="9">π</text>
+          <text x="76"  y="152" fill="#00ff00" font-family="Courier New" font-size="9">π</text>
+          <text x="90"  y="152" fill="#00ff00" font-family="Courier New" font-size="9">π</text>
+          <text x="104" y="152" fill="#00ff00" font-family="Courier New" font-size="9">π</text>
+          <text x="118" y="152" fill="#00ff00" font-family="Courier New" font-size="9">π</text>
+          <text x="132" y="152" fill="#00ff00" font-family="Courier New" font-size="9">π</text>
+          <text x="146" y="152" fill="#00ff00" font-family="Courier New" font-size="9">π</text>
+          <text x="160" y="152" fill="#00ff00" font-family="Courier New" font-size="9">π</text>
+          <text x="174" y="152" fill="#00ff00" font-family="Courier New" font-size="9">π</text>
+        </g>
+        <!-- 502 label -->
+        <text x="120" y="185" text-anchor="middle" fill="rgba(255,0,64,0.8)" font-family="Courier New" font-size="16" font-weight="bold" letter-spacing="4">502</text>
+        <!-- Cannon -->
+        <rect x="112" y="190" width="16" height="5" fill="rgba(0,255,0,0.6)"/>
+        <rect x="118" y="185" width="4" height="8" fill="rgba(0,255,0,0.8)"/>
+
+        <!-- Control panel -->
+        <rect x="45" y="218" width="150" height="50" rx="2" stroke="#00ff00" stroke-width="1" fill="rgba(0,255,0,0.03)"/>
+        <!-- Joystick -->
+        <circle cx="80" cy="243" r="10" stroke="#00ff00" stroke-width="1" fill="rgba(0,255,0,0.06)"/>
+        <circle cx="80" cy="243" r="4" fill="rgba(0,255,0,0.4)"/>
+        <!-- Buttons -->
+        <circle cx="120" cy="238" r="6" fill="rgba(255,0,64,0.6)" stroke="#ff0040" stroke-width="1"/>
+        <circle cx="138" cy="238" r="6" fill="rgba(255,255,0,0.5)" stroke="#ffff00" stroke-width="1"/>
+        <circle cx="156" cy="238" r="6" fill="rgba(0,255,0,0.5)" stroke="#00ff00" stroke-width="1"/>
+        <circle cx="129" cy="254" r="5" fill="rgba(0,150,255,0.5)" stroke="rgba(0,150,255,0.8)" stroke-width="1"/>
+        <text x="80" y="268" text-anchor="middle" fill="rgba(0,255,0,0.4)" font-family="Courier New" font-size="6">PLAYER 1</text>
+
+        <!-- Coin slot -->
+        <rect x="100" y="275" width="40" height="8" rx="4" stroke="#00ff00" stroke-width="1" fill="rgba(0,255,0,0.05)"/>
+        <text x="120" y="282" text-anchor="middle" fill="rgba(0,255,0,0.4)" font-family="Courier New" font-size="6">INSERT COIN</text>
+
+        <!-- Base / legs -->
+        <rect x="55" y="316" width="35" height="12" rx="2" stroke="#00ff00" stroke-width="1" fill="rgba(0,255,0,0.03)"/>
+        <rect x="150" y="316" width="35" height="12" rx="2" stroke="#00ff00" stroke-width="1" fill="rgba(0,255,0,0.03)"/>
+
+        <!-- Side panel decorations -->
+        <line x1="30" y1="100" x2="30" y2="300" stroke="rgba(0,255,0,0.3)" stroke-width="0.5" stroke-dasharray="4,4"/>
+        <line x1="210" y1="100" x2="210" y2="300" stroke="rgba(0,255,0,0.3)" stroke-width="0.5" stroke-dasharray="4,4"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Scrolling marquee -->
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span>502 · 404 · 500 · 403 · 429 · 503 · 521 · 404 · 418 · 451 · 400 · 408 · 409 · 410 · 413 · 422 · 501 · 507 · 508 · 526 · 511 · 520 · 522 · 504 · 499 · 415 · 414 · 424 · 426 · 431 · 423 · 411 · 407 · 406 · 405 ·&nbsp;</span>
+      <span>502 · 404 · 500 · 403 · 429 · 503 · 521 · 404 · 418 · 451 · 400 · 408 · 409 · 410 · 413 · 422 · 501 · 507 · 508 · 526 · 511 · 520 · 522 · 504 · 499 · 415 · 414 · 424 · 426 · 431 · 423 · 411 · 407 · 406 · 405 ·&nbsp;</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     HOW IT WORKS
+============================================================ -->
+<section class="how-section" id="how">
+  <div class="container">
+    <h2 class="section-title reveal">▶ HOW IT WORKS // 3 STEPS</h2>
+
+    <div class="steps-grid">
+      <div class="step-card reveal">
+        <div class="step-num">[01]</div>
+        <div class="step-title">Choose your error code</div>
+        <p class="step-desc">Browse 35 arcade game titles, each mapped to an HTTP error code. Pick the ones your users are most likely to hit — or grab them all.</p>
+        <div class="code-block" onclick="copyCode(this)">
+          <span class="copy-hint">[ CLICK TO COPY ]</span>
+          <span class="copied-flash">[ COPIED! ]</span>
+          <span class="code-comment"># Available titles</span><br>
+          404-maze-runner.html<br>
+          502-gateway-invaders.html<br>
+          500-asteroid-field.html<br>
+          503-missile-defense.html<br>
+          <span class="code-comment"># + 31 more...</span>
+        </div>
+      </div>
+
+      <div class="step-card reveal">
+        <div class="step-num">[02]</div>
+        <div class="step-title">Download the HTML file</div>
+        <p class="step-desc">One self-contained .html file per game. ~600 lines. No external fonts, no frameworks, no CDN calls. Works offline. Drop it anywhere.</p>
+        <div class="code-block" onclick="copyCode(this)">
+          <span class="copy-hint">[ CLICK TO COPY ]</span>
+          <span class="copied-flash">[ COPIED! ]</span>
+          <span class="code-comment"># Your file structure</span><br>
+          /public/<br>
+          &nbsp;&nbsp;errors/<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;404-maze-runner.html<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;502-gateway-invaders.html<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;500-asteroid-field.html
+        </div>
+      </div>
+
+      <div class="step-card reveal">
+        <div class="step-num">[03]</div>
+        <div class="step-title">Point your server at it — done</div>
+        <p class="step-desc">Configure nginx, Apache, Caddy or any server to serve the HTML file for each error code. Two lines of config. Your users play a game instead of rage-quitting.</p>
+        <div class="code-block" onclick="copyCode(this)">
+          <span class="copy-hint">[ CLICK TO COPY ]</span>
+          <span class="copied-flash">[ COPIED! ]</span>
+          <span class="code-comment"># nginx</span><br>
+          error_page 404 /errors/404-maze-runner.html;<br>
+          error_page 502 /errors/502-gateway-invaders.html;<br>
+          <br>
+          <span class="code-comment"># Apache (.htaccess)</span><br>
+          ErrorDocument 404 /errors/404-maze-runner.html<br>
+          ErrorDocument 502 /errors/502-gateway-invaders.html
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     GAMES GRID
+============================================================ -->
+<section class="games-section" id="games">
+  <div class="container">
+    <div class="games-header">
+      <h2 class="section-title" style="margin-bottom:0">▶ GAME LIBRARY // 35 TITLES</h2>
+    </div>
+
+    <div class="filter-bar">
+      <button class="filter-btn active" data-filter="all">[ ALL ]</button>
+      <button class="filter-btn" data-filter="4xx">[ 4xx ]</button>
+      <button class="filter-btn" data-filter="5xx">[ 5xx ]</button>
+      <button class="filter-btn" data-filter="tier1">[ TIER 1 ]</button>
+      <button class="filter-btn" data-filter="free">[ FREE ]</button>
+    </div>
+
+    <div class="games-grid" id="gamesGrid">
+
+      <!-- 4xx GAMES -->
+      <div class="game-card reveal" data-filter="4xx tier1">
+        <div class="card-top">
+          <span class="error-badge">400</span>
+          <span class="tier-badge">TIER 1</span>
+        </div>
+        <div class="game-name">Bad Input</div>
+        <div class="game-inspired">Q*bert inspired</div>
+        <div class="game-desc">Wrong moves, wrong steps — every input corrupted</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '400 — Bad Input', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="4xx tier1">
+        <div class="card-top">
+          <span class="error-badge">401</span>
+          <span class="tier-badge">TIER 1</span>
+        </div>
+        <div class="game-name">Unauthorized</div>
+        <div class="game-inspired">Donkey Kong inspired</div>
+        <div class="game-desc">Mario can't get through — authenticate to climb</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '401 — Unauthorized', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="4xx tier1">
+        <div class="card-top">
+          <span class="error-badge">403</span>
+          <span class="tier-badge">TIER 1</span>
+        </div>
+        <div class="game-name">Forbidden Road</div>
+        <div class="game-inspired">Frogger inspired</div>
+        <div class="game-desc">The road is blocked — you shall not pass</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '403 — Forbidden Road', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="4xx tier1">
+        <div class="card-top">
+          <span class="error-badge">404</span>
+          <span class="tier-badge">TIER 1</span>
+        </div>
+        <div class="game-name">Maze Runner</div>
+        <div class="game-inspired">Pac-Man inspired</div>
+        <div class="game-desc">Page lost in the maze — navigate to recover it</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '404 — Maze Runner', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="4xx">
+        <div class="card-top">
+          <span class="error-badge">405</span>
+          <span class="tier-badge">TIER 3</span>
+        </div>
+        <div class="game-name">No Entry Zone</div>
+        <div class="game-inspired">Battlezone inspired</div>
+        <div class="game-desc">Method blocked — tank through the no-entry zone</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '405 — No Entry Zone', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="4xx">
+        <div class="card-top">
+          <span class="error-badge">406</span>
+          <span class="tier-badge">TIER 3</span>
+        </div>
+        <div class="game-name">Not Acceptable</div>
+        <div class="game-inspired">Ms. Pac-Man inspired</div>
+        <div class="game-desc">Only certain ghosts accepted — format mismatch</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '406 — Not Acceptable', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="4xx">
+        <div class="card-top">
+          <span class="error-badge">407</span>
+          <span class="tier-badge">TIER 3</span>
+        </div>
+        <div class="game-name">Checkpoint Chase</div>
+        <div class="game-inspired">Spy Hunter inspired</div>
+        <div class="game-desc">Proxy blocked — fight through the checkpoints</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '407 — Checkpoint Chase', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="4xx">
+        <div class="card-top">
+          <span class="error-badge">408</span>
+          <span class="tier-badge">TIER 2</span>
+        </div>
+        <div class="game-name">Time Out</div>
+        <div class="game-inspired">Joust inspired</div>
+        <div class="game-desc">Connection timed out mid-flight — keep flapping</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '408 — Time Out', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="4xx">
+        <div class="card-top">
+          <span class="error-badge">409</span>
+          <span class="tier-badge">TIER 2</span>
+        </div>
+        <div class="game-name">Conflict Zone</div>
+        <div class="game-inspired">Robotron 2084 inspired</div>
+        <div class="game-desc">Conflicting forces everywhere — twin-stick survival</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '409 — Conflict Zone', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="4xx">
+        <div class="card-top">
+          <span class="error-badge">410</span>
+          <span class="tier-badge">TIER 2</span>
+        </div>
+        <div class="game-name">Last Delivery</div>
+        <div class="game-inspired">Paperboy inspired</div>
+        <div class="game-desc">Resource gone forever — make the final delivery</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '410 — Last Delivery', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="4xx">
+        <div class="card-top">
+          <span class="error-badge">411</span>
+          <span class="tier-badge">TIER 3</span>
+        </div>
+        <div class="game-name">Full Track</div>
+        <div class="game-inspired">Pole Position inspired</div>
+        <div class="game-desc">Length required — no shortcuts on this circuit</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '411 — Full Track', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="4xx">
+        <div class="card-top">
+          <span class="error-badge">413</span>
+          <span class="tier-badge">TIER 3</span>
+        </div>
+        <div class="game-name">Too Large</div>
+        <div class="game-inspired">Burgertime inspired</div>
+        <div class="game-desc">Payload too large to stack — build it anyway</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '413 — Too Large', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="4xx">
+        <div class="card-top">
+          <span class="error-badge">414</span>
+          <span class="tier-badge">TIER 3</span>
+        </div>
+        <div class="game-name">URI Too Long</div>
+        <div class="game-inspired">Moon Patrol inspired</div>
+        <div class="game-desc">Road goes on forever — the URI never ends</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '414 — URI Too Long', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="4xx">
+        <div class="card-top">
+          <span class="error-badge">415</span>
+          <span class="tier-badge">TIER 3</span>
+        </div>
+        <div class="game-name">Format Unknown</div>
+        <div class="game-inspired">Dragon's Lair inspired</div>
+        <div class="game-desc">Media format not recognised — survive the dungeon</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '415 — Format Unknown', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="4xx">
+        <div class="card-top">
+          <span class="error-badge">418</span>
+          <span class="tier-badge">TIER 2</span>
+        </div>
+        <div class="game-name">I'm a Teapot</div>
+        <div class="game-inspired">Berzerk inspired</div>
+        <div class="game-desc">System gone berzerk — robots, chaos, nonsense</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '418 — I&apos;m a Teapot', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="4xx">
+        <div class="card-top">
+          <span class="error-badge">422</span>
+          <span class="tier-badge">TIER 2</span>
+        </div>
+        <div class="game-name">Marble Run</div>
+        <div class="game-inspired">Marble Madness inspired</div>
+        <div class="game-desc">Correct input, wrong path — guide the marble home</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '422 — Marble Run', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="4xx">
+        <div class="card-top">
+          <span class="error-badge">423</span>
+          <span class="tier-badge">TIER 3</span>
+        </div>
+        <div class="game-name">Locked</div>
+        <div class="game-inspired">Pengo inspired</div>
+        <div class="game-desc">Resource locked — break through the ice blocks</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '423 — Locked', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="4xx">
+        <div class="card-top">
+          <span class="error-badge">424</span>
+          <span class="tier-badge">TIER 3</span>
+        </div>
+        <div class="game-name">Failed Dependency</div>
+        <div class="game-inspired">Scramble inspired</div>
+        <div class="game-desc">Fuel dependency failed mid-flight — press on</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '424 — Failed Dependency', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="4xx">
+        <div class="card-top">
+          <span class="error-badge">426</span>
+          <span class="tier-badge">TIER 3</span>
+        </div>
+        <div class="game-name">Upgrade Required</div>
+        <div class="game-inspired">Galaxian inspired</div>
+        <div class="game-desc">Formation needs upgrade — dive attack incoming</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '426 — Upgrade Required', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="4xx tier1">
+        <div class="card-top">
+          <span class="error-badge">429</span>
+          <span class="tier-badge">TIER 1</span>
+        </div>
+        <div class="game-name">Too Many Requests</div>
+        <div class="game-inspired">Centipede inspired</div>
+        <div class="game-desc">Request storm incoming — hold the line</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '429 — Too Many Requests', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="4xx">
+        <div class="card-top">
+          <span class="error-badge">431</span>
+          <span class="tier-badge">TIER 3</span>
+        </div>
+        <div class="game-name">Header Storm</div>
+        <div class="game-inspired">Xevious inspired</div>
+        <div class="game-desc">Headers too large — dual weapon assault required</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '431 — Header Storm', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="4xx">
+        <div class="card-top">
+          <span class="error-badge">451</span>
+          <span class="tier-badge">TIER 2</span>
+        </div>
+        <div class="game-name">Censored</div>
+        <div class="game-inspired">Tron inspired</div>
+        <div class="game-desc">Locked inside the system — escape the grid</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '451 — Censored', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="4xx">
+        <div class="card-top">
+          <span class="error-badge">499</span>
+          <span class="tier-badge">TIER 3</span>
+        </div>
+        <div class="game-name">Connection Lost</div>
+        <div class="game-inspired">Star Wars Arcade inspired</div>
+        <div class="game-desc">Client disconnected — finish the trench run</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '499 — Connection Lost', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <!-- 5xx GAMES -->
+      <div class="game-card reveal" data-filter="5xx tier1">
+        <div class="card-top">
+          <span class="error-badge">500</span>
+          <span class="tier-badge">TIER 1</span>
+        </div>
+        <div class="game-name">Asteroid Field</div>
+        <div class="game-inspired">Asteroids inspired</div>
+        <div class="game-desc">Everything exploded — blast your way out</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '500 — Asteroid Field', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="5xx">
+        <div class="card-top">
+          <span class="error-badge">501</span>
+          <span class="tier-badge">TIER 3</span>
+        </div>
+        <div class="game-name">Not Implemented</div>
+        <div class="game-inspired">Lunar Lander inspired</div>
+        <div class="game-desc">Feature hasn't landed yet — bring it down safely</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '501 — Not Implemented', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="5xx tier1 free">
+        <div class="card-top">
+          <span class="error-badge">502</span>
+          <div style="display:flex;gap:4px;align-items:center;">
+            <span class="tier-badge">TIER 1</span>
+            <span class="free-badge">FREE</span>
+          </div>
+        </div>
+        <div class="game-name">Gateway Invaders</div>
+        <div class="game-inspired">Space Invaders inspired</div>
+        <div class="game-desc">Gateway under attack — defend it</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('./demo/502-gateway-invaders.html', '502 — Gateway Invaders')">[ PLAY DEMO ]</button>
+          <a href="./demo/502-gateway-invaders.html" class="btn btn-green" style="background:rgba(0,255,0,0.1)">[ GET FREE ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="5xx">
+        <div class="card-top">
+          <span class="error-badge">502</span>
+          <span class="tier-badge">TIER 3</span>
+        </div>
+        <div class="game-name">Breakout</div>
+        <div class="game-inspired">Breakout inspired</div>
+        <div class="game-desc">Alt 502 — break through the gateway wall</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '502 — Breakout', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="5xx tier1">
+        <div class="card-top">
+          <span class="error-badge">503</span>
+          <span class="tier-badge">TIER 1</span>
+        </div>
+        <div class="game-name">Missile Defense</div>
+        <div class="game-inspired">Missile Command inspired</div>
+        <div class="game-desc">Service under attack — intercept incoming missiles</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '503 — Missile Defense', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="5xx">
+        <div class="card-top">
+          <span class="error-badge">504</span>
+          <span class="tier-badge">TIER 2</span>
+        </div>
+        <div class="game-name">Gateway Timeout</div>
+        <div class="game-inspired">Zaxxon inspired</div>
+        <div class="game-desc">Flying through space — destination unreachable</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '504 — Gateway Timeout', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="5xx">
+        <div class="card-top">
+          <span class="error-badge">507</span>
+          <span class="tier-badge">TIER 2</span>
+        </div>
+        <div class="game-name">Storage Full</div>
+        <div class="game-inspired">Dig Dug inspired</div>
+        <div class="game-desc">Tunneled through all storage — pump them out</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '507 — Storage Full', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="5xx">
+        <div class="card-top">
+          <span class="error-badge">508</span>
+          <span class="tier-badge">TIER 2</span>
+        </div>
+        <div class="game-name">Loop Detected</div>
+        <div class="game-inspired">Tempest inspired</div>
+        <div class="game-desc">Infinite rotating loop — no escape from the tube</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '508 — Loop Detected', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="5xx">
+        <div class="card-top">
+          <span class="error-badge">511</span>
+          <span class="tier-badge">TIER 3</span>
+        </div>
+        <div class="game-name">Auth Required</div>
+        <div class="game-inspired">Gauntlet inspired</div>
+        <div class="game-desc">Warrior needs auth badly — keys required</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '511 — Auth Required', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="5xx">
+        <div class="card-top">
+          <span class="error-badge">520</span>
+          <span class="tier-badge">TIER 3</span>
+        </div>
+        <div class="game-name">Unknown Error</div>
+        <div class="game-inspired">Gyruss inspired</div>
+        <div class="game-desc">Unknown force — spinning out of control</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '520 — Unknown Error', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="5xx tier1">
+        <div class="card-top">
+          <span class="error-badge">521</span>
+          <span class="tier-badge">TIER 1</span>
+        </div>
+        <div class="game-name">Fleet Assault</div>
+        <div class="game-inspired">Galaga inspired</div>
+        <div class="game-desc">Web server down — destroy the fleet</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '521 — Fleet Assault', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="5xx">
+        <div class="card-top">
+          <span class="error-badge">522</span>
+          <span class="tier-badge">TIER 3</span>
+        </div>
+        <div class="game-name">Time Out</div>
+        <div class="game-inspired">Time Pilot inspired</div>
+        <div class="game-desc">Connection lost across time — dogfight through the eras</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '522 — Time Out', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+      <div class="game-card reveal" data-filter="5xx">
+        <div class="card-top">
+          <span class="error-badge">526</span>
+          <span class="tier-badge">TIER 2</span>
+        </div>
+        <div class="game-name">Shield Down</div>
+        <div class="game-inspired">Defender inspired</div>
+        <div class="game-desc">SSL shield breached — defend the ground servers</div>
+        <div class="card-actions">
+          <button class="btn btn-green" onclick="openModal('#', '526 — Shield Down', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+             class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
+        </div>
+      </div>
+
+    </div><!-- /games-grid -->
+  </div>
+</section>
+
+
+<!-- ============================================================
+     PRICING
+============================================================ -->
+<section class="pricing-section" id="pricing">
+  <div class="container">
+    <h2 class="section-title reveal">▶ PRICING // PICK YOUR TOKEN</h2>
+
+    <div class="pricing-grid">
+
+      <!-- Card 1: Single Game -->
+      <div class="pricing-card green-border reveal">
+        <div class="pricing-plan">SINGLE GAME</div>
+        <div class="pricing-price">€3.90</div>
+        <div class="pricing-period">one-time · yours forever</div>
+        <div class="pricing-tagline">One error code, yours forever</div>
+        <ul class="pricing-features">
+          <li>Single .html file</li>
+          <li>Permanent download</li>
+          <li>Commercial use included</li>
+          <li>All future fixes &amp; updates</li>
+          <li>Zero dependencies</li>
+        </ul>
+        <div class="pricing-cta-wrap">
+          <a href="#games" class="btn btn-green">[ BROWSE GAMES ↑ ]</a>
+        </div>
+      </div>
+
+      <!-- Card 2: Arcade Pass — FEATURED -->
+      <div class="pricing-card featured reveal">
+        <div class="pricing-badge">BEST VALUE</div>
+        <div class="pricing-plan">ARCADE PASS</div>
+
+        <!-- Price toggle -->
+        <div class="pricing-toggle">
+          <span id="toggleLabelMonth" style="color:var(--green)">MONTHLY</span>
+          <div class="toggle-switch" id="priceToggle" onclick="togglePricing()" role="button" aria-label="Toggle billing period" tabindex="0"></div>
+          <span id="toggleLabelYear" style="color:rgba(0,255,0,0.5)">ANNUAL</span>
+        </div>
+
+        <div class="pricing-price" id="arcadePrice">€4.99</div>
+        <div class="pricing-period" id="arcadePeriod">per month · cancel anytime</div>
+        <div class="pricing-annual-note" id="arcadeNote" style="visibility:hidden">Save 35% — €3.25/month billed annually</div>
+        <div class="pricing-tagline">Full library, always growing</div>
+        <ul class="pricing-features">
+          <li>All 35 games — instant access</li>
+          <li>2 new games added monthly</li>
+          <li>Commercial use included</li>
+          <li>Cancel anytime</li>
+          <li>Priority support</li>
+        </ul>
+        <div class="pricing-cta-wrap">
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_MONTHLY"
+             class="btn btn-red lemonsqueezy-button" id="arcadeCtaBtn">[ INSERT COIN — SUBSCRIBE ]</a>
+        </div>
+      </div>
+
+      <!-- Card 3: Starter Pack -->
+      <div class="pricing-card yellow-border reveal">
+        <div class="pricing-plan">STARTER PACK</div>
+        <div class="pricing-price" style="color:var(--yellow);text-shadow:var(--yellow-glow)">€12</div>
+        <div class="pricing-period">one-time · 5 games</div>
+        <div class="pricing-tagline">5 games of your choice</div>
+        <ul class="pricing-features">
+          <li>5 .html files of your choice</li>
+          <li>Permanent download</li>
+          <li>Commercial use included</li>
+          <li>Great for agencies</li>
+          <li>All future fixes &amp; updates</li>
+        </ul>
+        <div class="pricing-cta-wrap">
+          <!-- TODO: replace with real Lemon Squeezy variant ID -->
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_PACK"
+             class="btn btn-yellow lemonsqueezy-button">[ GET STARTER PACK ]</a>
+        </div>
+      </div>
+
+    </div>
+
+    <p class="pricing-assurance reveal">
+      Handled by Lemon Squeezy · EU VAT included · Instant download · No subscription required for single purchases
+    </p>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     FREE GAME CTA
+============================================================ -->
+<section class="free-cta-section">
+  <div class="container">
+    <h2 class="reveal">Try it free — 502 Gateway Invaders</h2>
+    <p class="reveal">The complete Space Invaders experience, free forever. No signup.</p>
+    <a href="./demo/502-gateway-invaders.html" class="btn btn-green reveal">[ PLAY NOW — FREE ]</a>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     FOOTER
+============================================================ -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo">[ ARCADE ERRORS ]</div>
+        <div class="footer-tagline">HTTP error pages that don't suck.<br>35 arcade games. Drop-in HTML.</div>
+        <div class="footer-copy">© 2026 arcadeerrors.com</div>
+      </div>
+      <div>
+        <ul class="footer-links">
+          <li><a href="#games">Games</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="https://github.com/arcadeerrors" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="./demo/502-gateway-invaders.html">Free Game</a></li>
+          <li><a href="#how">How it works</a></li>
+        </ul>
+      </div>
+      <div class="footer-right">
+        Built for devs who care about the details.<br><br>
+        Every error page is a single self-contained<br>
+        HTML file. No CDN. No frameworks.<br>
+        No excuses for boring 404 pages.
+      </div>
+    </div>
+    <div class="footer-bottom">
+      Payments by Lemon Squeezy · arcadeerrors.com · 2026
+    </div>
+  </div>
+</footer>
+
+
+<!-- ============================================================
+     GAME PREVIEW MODAL
+============================================================ -->
+<div class="modal-overlay" id="gameModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-inner">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">// GAME PREVIEW</span>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">[ X CLOSE ]</button>
+    </div>
+    <iframe class="modal-iframe" id="gameIframe" src="" title="Game Preview" allowfullscreen></iframe>
+    <div class="modal-preview-unavail" id="modalPreviewUnavail">
+      <div class="modal-insert-coin">[ INSERT COIN ]</div>
+      <div class="modal-unavail-msg">
+        Purchase this game to play it.<br>
+        Full playable version included with every purchase.
+      </div>
+      <a id="modalBuyBtn" href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+         class="modal-buy-btn lemonsqueezy-button">[ BUY €3.90 ]</a>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================ -->
+<script>
+  /* ---- Star canvas ---- */
+  (function initStars() {
+    const canvas = document.getElementById('starCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+    let W, H;
+
+    function resize() {
+      W = canvas.width = canvas.offsetWidth;
+      H = canvas.height = canvas.offsetHeight;
+    }
+
+    function createStars() {
+      stars = [];
+      for (let i = 0; i < 50; i++) {
+        stars.push({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          r: Math.random() * 1.5 + 0.5,
+          phase: Math.random() * Math.PI * 2,
+          speed: Math.random() * 0.02 + 0.005,
+        });
+      }
+    }
+
+    function draw(ts) {
+      ctx.clearRect(0, 0, W, H);
+      const t = ts * 0.001;
+      for (const s of stars) {
+        const alpha = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(t * s.speed * 60 + s.phase));
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0,255,0,${alpha.toFixed(2)})`;
+        ctx.fill();
+      }
+      requestAnimationFrame(draw);
+    }
+
+    resize();
+    createStars();
+    requestAnimationFrame(draw);
+    window.addEventListener('resize', () => { resize(); createStars(); });
+  })();
+
+  /* ---- Mobile menu ---- */
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+
+  hamburger.addEventListener('click', () => {
+    const isOpen = mobileMenu.classList.toggle('open');
+    hamburger.classList.toggle('open', isOpen);
+  });
+
+  function closeMobileMenu() {
+    mobileMenu.classList.remove('open');
+    hamburger.classList.remove('open');
+  }
+
+  /* ---- Filter buttons ---- */
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const gameCards = document.querySelectorAll('.game-card');
+  const gamesGrid = document.getElementById('gamesGrid');
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const filter = btn.dataset.filter;
+
+      // We need to manage grid layout during filter
+      gameCards.forEach(card => {
+        if (filter === 'all') {
+          card.classList.remove('hidden');
+          card.style.position = '';
+          card.style.visibility = '';
+        } else {
+          const cardFilters = card.dataset.filter || '';
+          if (cardFilters.includes(filter)) {
+            card.classList.remove('hidden');
+            card.style.position = '';
+            card.style.visibility = '';
+          } else {
+            card.classList.add('hidden');
+          }
+        }
+      });
+    });
+  });
+
+  /* ---- Pricing toggle ---- */
+  let isAnnual = false;
+  const priceToggle = document.getElementById('priceToggle');
+  const arcadePrice = document.getElementById('arcadePrice');
+  const arcadePeriod = document.getElementById('arcadePeriod');
+  const arcadeNote = document.getElementById('arcadeNote');
+  const arcadeCtaBtn = document.getElementById('arcadeCtaBtn');
+  const toggleLabelMonth = document.getElementById('toggleLabelMonth');
+  const toggleLabelYear = document.getElementById('toggleLabelYear');
+
+  function togglePricing() {
+    isAnnual = !isAnnual;
+    priceToggle.classList.toggle('annual', isAnnual);
+
+    if (isAnnual) {
+      arcadePrice.textContent = '€39';
+      arcadePeriod.textContent = 'per year · €3.25/month';
+      arcadeNote.style.visibility = 'visible';
+      /* TODO: replace with real Lemon Squeezy variant ID */
+      arcadeCtaBtn.href = 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_ANNUAL';
+      toggleLabelMonth.style.color = 'rgba(0,255,0,0.5)';
+      toggleLabelYear.style.color = 'var(--green)';
+    } else {
+      arcadePrice.textContent = '€4.99';
+      arcadePeriod.textContent = 'per month · cancel anytime';
+      arcadeNote.style.visibility = 'hidden';
+      /* TODO: replace with real Lemon Squeezy variant ID */
+      arcadeCtaBtn.href = 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_MONTHLY';
+      toggleLabelMonth.style.color = 'var(--green)';
+      toggleLabelYear.style.color = 'rgba(0,255,0,0.5)';
+    }
+  }
+
+  priceToggle.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); togglePricing(); }
+  });
+
+  /* ---- Modal ---- */
+  const modal = document.getElementById('gameModal');
+  const gameIframe = document.getElementById('gameIframe');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalPreviewUnavail = document.getElementById('modalPreviewUnavail');
+  const modalBuyBtn = document.getElementById('modalBuyBtn');
+
+  const FREE_DEMO_SRC = './demo/502-gateway-invaders.html';
+
+  function openModal(src, title, buyLink) {
+    modalTitle.textContent = '// ' + title;
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    if (src === FREE_DEMO_SRC) {
+      // Free game: show iframe
+      gameIframe.src = src;
+      gameIframe.style.display = '';
+      modalPreviewUnavail.classList.remove('visible');
+    } else {
+      // Paid game: show preview unavailable panel
+      gameIframe.src = '';
+      gameIframe.style.display = 'none';
+      if (buyLink) modalBuyBtn.href = buyLink;
+      modalPreviewUnavail.classList.add('visible');
+    }
+  }
+
+  function closeModal() {
+    modal.classList.remove('open');
+    gameIframe.src = '';
+    gameIframe.style.display = '';
+    modalPreviewUnavail.classList.remove('visible');
+    document.body.style.overflow = '';
+  }
+
+  modal.addEventListener('click', e => {
+    if (e.target === modal) closeModal();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  /* ---- Copy code snippets ---- */
+  function copyCode(el) {
+    // Extract text content (strip HTML tags)
+    const text = el.innerText
+      .replace('[ CLICK TO COPY ]', '')
+      .replace('[ COPIED! ]', '')
+      .trim();
+
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(() => flashCopied(el));
+    } else {
+      // Fallback
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      flashCopied(el);
+    }
+  }
+
+  function flashCopied(el) {
+    el.classList.add('copied');
+    setTimeout(() => el.classList.remove('copied'), 1800);
+  }
+
+  /* ---- Scroll reveal (IntersectionObserver) ---- */
+  const revealEls = document.querySelectorAll('.reveal');
+
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    revealEls.forEach(el => observer.observe(el));
+  } else {
+    // Fallback: show all immediately
+    revealEls.forEach(el => el.classList.add('visible'));
+  }
+</script>
+
+</body>
+</html>
