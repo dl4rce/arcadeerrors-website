@@ -25,6 +25,7 @@
       --green: #00ff00;
       --red: #ff0040;
       --yellow: #ffff00;
+      --purple: #aa00ff;
       --bg: #0a0a0f;
       --bg-card: #0f0f0f;
       --bg-nav: #06060a;
@@ -32,6 +33,7 @@
       --green-glow: 0 0 8px #00ff00, 0 0 20px rgba(0,255,0,0.4);
       --red-glow: 0 0 8px #ff0040, 0 0 20px rgba(255,0,64,0.4);
       --yellow-glow: 0 0 8px #ffff00, 0 0 20px rgba(255,255,0,0.4);
+      --purple-glow: 0 0 8px #aa00ff, 0 0 20px rgba(170,0,255,0.4);
     }
 
     html {
@@ -132,6 +134,16 @@
       background: var(--yellow);
       color: var(--bg);
       box-shadow: var(--yellow-glow);
+    }
+
+    .btn-purple {
+      color: var(--purple);
+      border-color: var(--purple);
+    }
+    .btn-purple:hover {
+      background: var(--purple);
+      color: #fff;
+      box-shadow: var(--purple-glow);
     }
 
     /* Scroll reveal */
@@ -590,9 +602,9 @@
 
     .pricing-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 24px;
-      max-width: 960px;
+      max-width: 1200px;
       margin: 0 auto 40px;
       align-items: start;
     }
@@ -608,12 +620,50 @@
 
     .pricing-card.featured {
       border-color: var(--red);
-      box-shadow: 0 0 24px rgba(255,0,64,0.2);
-      transform: scale(1.03);
+      box-shadow: 0 0 24px rgba(255,0,64,0.25), 0 0 48px rgba(255,0,64,0.1);
+      transform: scale(1.04);
     }
     .pricing-card.yellow-border { border-color: rgba(255,255,0,0.4); }
     .pricing-card.yellow-border:hover { box-shadow: var(--yellow-glow); }
+    .pricing-card.green-border { border-color: rgba(0,255,0,0.4); }
     .pricing-card.green-border:hover { box-shadow: var(--green-glow); }
+    .pricing-card.purple-border { border-color: rgba(170,0,255,0.4); }
+    .pricing-card.purple-border:hover { box-shadow: var(--purple-glow); }
+    .pricing-card.purple-border .pricing-price { color: var(--purple); text-shadow: var(--purple-glow); }
+
+    .pricing-license-row {
+      display: flex;
+      gap: 16px;
+      max-width: 1200px;
+      margin: 24px auto 0;
+      flex-wrap: wrap;
+    }
+
+    .pricing-license-box {
+      flex: 1;
+      min-width: 220px;
+      background: #080810;
+      border: 1px solid rgba(0,255,0,0.15);
+      padding: 16px 20px;
+      font-size: 11px;
+      color: rgba(0,255,0,0.55);
+      letter-spacing: 1px;
+      line-height: 1.8;
+    }
+
+    .pricing-license-box strong {
+      color: var(--green);
+      font-size: 12px;
+      display: block;
+      margin-bottom: 4px;
+      letter-spacing: 2px;
+    }
+
+    .pricing-license-box em {
+      font-style: normal;
+      color: rgba(0,255,0,0.35);
+      font-size: 10px;
+    }
 
     .pricing-badge {
       position: absolute;
@@ -829,9 +879,44 @@
       line-height: 1.8;
     }
 
+    .footer-also-by {
+      text-align: center;
+      padding: 20px 0 8px;
+      max-width: 1000px;
+      margin: 0 auto;
+      border-top: 1px solid rgba(0,255,0,0.08);
+    }
+
+    .footer-also-by .label {
+      color: rgba(136,136,136,0.7);
+      font-size: 10px;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+
+    .footer-also-by .products {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .footer-also-by a {
+      color: var(--green);
+      font-size: 11px;
+      letter-spacing: 1px;
+      transition: text-shadow 0.2s;
+    }
+    .footer-also-by a:hover { text-shadow: var(--green-glow); }
+
+    .footer-also-by .product-desc {
+      color: rgba(136,136,136,0.6);
+      font-size: 10px;
+    }
+
     .footer-bottom {
       text-align: center;
-      padding: 16px 0;
+      padding: 12px 0 16px;
       color: rgba(0,255,0,0.25);
       font-size: 11px;
       letter-spacing: 2px;
@@ -1014,12 +1099,12 @@
     <h1 class="hero-headline">HTTP ERRORS,
 ARCADE STYLE</h1>
     <p class="hero-sub">35 fully playable arcade games. One per HTTP error code.<br>Drop-in HTML. Zero dependencies.</p>
+    <p style="font-size:11px;color:#888;letter-spacing:1px;margin:-28px auto 32px;font-family:'Courier New',Courier,monospace;">A product by <a href="https://4rce.com" style="color:#00ff00;" target="_blank" rel="noopener">4rce.com</a></p>
 
     <div class="hero-ctas">
       <a href="#games" class="btn btn-green">[ PLAY FREE DEMO ]</a>
-      <!-- TODO: replace with real Lemon Squeezy variant ID -->
-      <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_MONTHLY"
-         class="btn btn-red lemonsqueezy-button">[ GET THE FULL PACK ]</a>
+      <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
+         class="btn btn-red lemonsqueezy-button">[ GET THE FULL BUNDLE ]</a>
     </div>
 
     <!-- Arcade Cabinet SVG -->
@@ -1211,9 +1296,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Q*bert inspired</div>
         <div class="game-desc">Wrong moves, wrong steps — every input corrupted</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '400 — Bad Input', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '400 — Bad Input', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1227,9 +1312,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Donkey Kong inspired</div>
         <div class="game-desc">Mario can't get through — authenticate to climb</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '401 — Unauthorized', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '401 — Unauthorized', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1243,9 +1328,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Frogger inspired</div>
         <div class="game-desc">The road is blocked — you shall not pass</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '403 — Forbidden Road', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '403 — Forbidden Road', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1259,9 +1344,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Pac-Man inspired</div>
         <div class="game-desc">Page lost in the maze — navigate to recover it</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '404 — Maze Runner', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '404 — Maze Runner', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1275,9 +1360,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Battlezone inspired</div>
         <div class="game-desc">Method blocked — tank through the no-entry zone</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '405 — No Entry Zone', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '405 — No Entry Zone', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1291,9 +1376,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Ms. Pac-Man inspired</div>
         <div class="game-desc">Only certain ghosts accepted — format mismatch</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '406 — Not Acceptable', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '406 — Not Acceptable', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1307,9 +1392,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Spy Hunter inspired</div>
         <div class="game-desc">Proxy blocked — fight through the checkpoints</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '407 — Checkpoint Chase', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '407 — Checkpoint Chase', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1323,9 +1408,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Joust inspired</div>
         <div class="game-desc">Connection timed out mid-flight — keep flapping</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '408 — Time Out', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '408 — Time Out', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1339,9 +1424,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Robotron 2084 inspired</div>
         <div class="game-desc">Conflicting forces everywhere — twin-stick survival</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '409 — Conflict Zone', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '409 — Conflict Zone', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1355,9 +1440,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Paperboy inspired</div>
         <div class="game-desc">Resource gone forever — make the final delivery</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '410 — Last Delivery', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '410 — Last Delivery', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1371,9 +1456,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Pole Position inspired</div>
         <div class="game-desc">Length required — no shortcuts on this circuit</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '411 — Full Track', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '411 — Full Track', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1387,9 +1472,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Burgertime inspired</div>
         <div class="game-desc">Payload too large to stack — build it anyway</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '413 — Too Large', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '413 — Too Large', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1403,9 +1488,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Moon Patrol inspired</div>
         <div class="game-desc">Road goes on forever — the URI never ends</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '414 — URI Too Long', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '414 — URI Too Long', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1419,9 +1504,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Dragon's Lair inspired</div>
         <div class="game-desc">Media format not recognised — survive the dungeon</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '415 — Format Unknown', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '415 — Format Unknown', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1435,9 +1520,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Berzerk inspired</div>
         <div class="game-desc">System gone berzerk — robots, chaos, nonsense</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '418 — I&apos;m a Teapot', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '418 — I&apos;m a Teapot', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1451,9 +1536,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Marble Madness inspired</div>
         <div class="game-desc">Correct input, wrong path — guide the marble home</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '422 — Marble Run', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '422 — Marble Run', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1467,9 +1552,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Pengo inspired</div>
         <div class="game-desc">Resource locked — break through the ice blocks</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '423 — Locked', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '423 — Locked', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1483,9 +1568,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Scramble inspired</div>
         <div class="game-desc">Fuel dependency failed mid-flight — press on</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '424 — Failed Dependency', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '424 — Failed Dependency', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1499,9 +1584,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Galaxian inspired</div>
         <div class="game-desc">Formation needs upgrade — dive attack incoming</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '426 — Upgrade Required', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '426 — Upgrade Required', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1515,9 +1600,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Centipede inspired</div>
         <div class="game-desc">Request storm incoming — hold the line</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '429 — Too Many Requests', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '429 — Too Many Requests', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1531,9 +1616,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Xevious inspired</div>
         <div class="game-desc">Headers too large — dual weapon assault required</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '431 — Header Storm', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '431 — Header Storm', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1547,9 +1632,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Tron inspired</div>
         <div class="game-desc">Locked inside the system — escape the grid</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '451 — Censored', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '451 — Censored', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1563,9 +1648,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Star Wars Arcade inspired</div>
         <div class="game-desc">Client disconnected — finish the trench run</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '499 — Connection Lost', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '499 — Connection Lost', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1580,9 +1665,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Asteroids inspired</div>
         <div class="game-desc">Everything exploded — blast your way out</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '500 — Asteroid Field', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '500 — Asteroid Field', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1596,9 +1681,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Lunar Lander inspired</div>
         <div class="game-desc">Feature hasn't landed yet — bring it down safely</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '501 — Not Implemented', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '501 — Not Implemented', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1629,9 +1714,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Breakout inspired</div>
         <div class="game-desc">Alt 502 — break through the gateway wall</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '502 — Breakout', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '502 — Breakout', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1645,9 +1730,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Missile Command inspired</div>
         <div class="game-desc">Service under attack — intercept incoming missiles</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '503 — Missile Defense', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '503 — Missile Defense', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1661,9 +1746,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Zaxxon inspired</div>
         <div class="game-desc">Flying through space — destination unreachable</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '504 — Gateway Timeout', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '504 — Gateway Timeout', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1677,9 +1762,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Dig Dug inspired</div>
         <div class="game-desc">Tunneled through all storage — pump them out</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '507 — Storage Full', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '507 — Storage Full', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1693,9 +1778,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Tempest inspired</div>
         <div class="game-desc">Infinite rotating loop — no escape from the tube</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '508 — Loop Detected', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '508 — Loop Detected', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1709,9 +1794,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Gauntlet inspired</div>
         <div class="game-desc">Warrior needs auth badly — keys required</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '511 — Auth Required', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '511 — Auth Required', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1725,9 +1810,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Gyruss inspired</div>
         <div class="game-desc">Unknown force — spinning out of control</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '520 — Unknown Error', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '520 — Unknown Error', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1741,9 +1826,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Galaga inspired</div>
         <div class="game-desc">Web server down — destroy the fleet</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '521 — Fleet Assault', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '521 — Fleet Assault', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1757,9 +1842,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Time Pilot inspired</div>
         <div class="game-desc">Connection lost across time — dogfight through the eras</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '522 — Time Out', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '522 — Time Out', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1773,9 +1858,9 @@ ARCADE STYLE</h1>
         <div class="game-inspired">Defender inspired</div>
         <div class="game-desc">SSL shield breached — defend the ground servers</div>
         <div class="card-actions">
-          <button class="btn btn-green" onclick="openModal('#', '526 — Shield Down', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE')">[ PLAY DEMO ]</button>
+          <button class="btn btn-green" onclick="openModal('#', '526 — Shield Down', 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE')">[ PLAY DEMO ]</button>
           <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
              class="btn btn-red lemonsqueezy-button">[ BUY €3.90 ]</a>
         </div>
       </div>
@@ -1794,79 +1879,100 @@ ARCADE STYLE</h1>
 
     <div class="pricing-grid">
 
-      <!-- Card 1: Single Game -->
+      <!-- Card 1: Free -->
       <div class="pricing-card green-border reveal">
-        <div class="pricing-plan">SINGLE GAME</div>
-        <div class="pricing-price">€3.90</div>
-        <div class="pricing-period">one-time · yours forever</div>
-        <div class="pricing-tagline">One error code, yours forever</div>
+        <div class="pricing-badge" style="background:var(--green);color:var(--bg)">FREE</div>
+        <div class="pricing-plan">502 GATEWAY INVADERS</div>
+        <div class="pricing-price">€0</div>
+        <div class="pricing-tagline">Yours to keep, forever</div>
         <ul class="pricing-features">
-          <li>Single .html file</li>
-          <li>Permanent download</li>
-          <li>Commercial use included</li>
-          <li>All future fixes &amp; updates</li>
-          <li>Zero dependencies</li>
+          <li>✓ Fully playable Space Invaders-style game</li>
+          <li>✓ Single HTML file, zero dependencies</li>
+          <li>✓ Personal use license</li>
+          <li>✓ No signup required</li>
         </ul>
         <div class="pricing-cta-wrap">
-          <a href="#games" class="btn btn-green">[ BROWSE GAMES ↑ ]</a>
+          <a href="./demo/502-gateway-invaders.html" class="btn btn-green">[ PLAY FREE NOW ]</a>
         </div>
       </div>
 
-      <!-- Card 2: Arcade Pass — FEATURED -->
-      <div class="pricing-card featured reveal">
-        <div class="pricing-badge">BEST VALUE</div>
-        <div class="pricing-plan">ARCADE PASS</div>
-
-        <!-- Price toggle -->
-        <div class="pricing-toggle">
-          <span id="toggleLabelMonth" style="color:var(--green)">MONTHLY</span>
-          <div class="toggle-switch" id="priceToggle" onclick="togglePricing()" role="button" aria-label="Toggle billing period" tabindex="0"></div>
-          <span id="toggleLabelYear" style="color:rgba(0,255,0,0.5)">ANNUAL</span>
-        </div>
-
-        <div class="pricing-price" id="arcadePrice">€4.99</div>
-        <div class="pricing-period" id="arcadePeriod">per month · cancel anytime</div>
-        <div class="pricing-annual-note" id="arcadeNote" style="visibility:hidden">Save 35% — €3.25/month billed annually</div>
-        <div class="pricing-tagline">Full library, always growing</div>
-        <ul class="pricing-features">
-          <li>All 35 games — instant access</li>
-          <li>2 new games added monthly</li>
-          <li>Commercial use included</li>
-          <li>Cancel anytime</li>
-          <li>Priority support</li>
-        </ul>
-        <div class="pricing-cta-wrap">
-          <!-- TODO: replace with real Lemon Squeezy variant ID -->
-          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_MONTHLY"
-             class="btn btn-red lemonsqueezy-button" id="arcadeCtaBtn">[ INSERT COIN — SUBSCRIBE ]</a>
-        </div>
-      </div>
-
-      <!-- Card 3: Starter Pack -->
+      <!-- Card 2: Starter Pack -->
       <div class="pricing-card yellow-border reveal">
-        <div class="pricing-plan">STARTER PACK</div>
-        <div class="pricing-price" style="color:var(--yellow);text-shadow:var(--yellow-glow)">€12</div>
-        <div class="pricing-period">one-time · 5 games</div>
-        <div class="pricing-tagline">5 games of your choice</div>
+        <div class="pricing-badge" style="background:var(--yellow);color:var(--bg)">STARTER</div>
+        <div class="pricing-plan">5-GAME PACK</div>
+        <div class="pricing-price" style="color:var(--yellow);text-shadow:var(--yellow-glow)">€15</div>
+        <div class="pricing-tagline">5 games, permanent license</div>
         <ul class="pricing-features">
-          <li>5 .html files of your choice</li>
-          <li>Permanent download</li>
-          <li>Commercial use included</li>
-          <li>Great for agencies</li>
-          <li>All future fixes &amp; updates</li>
+          <li>✓ 5 hand-picked games (404, 500, 502, 503, 429)</li>
+          <li>✓ Single HTML files, zero dependencies</li>
+          <li>✓ Single-use license — 1 project</li>
+          <li>✓ All future bug fixes included</li>
+          <li>✓ Commercial use</li>
         </ul>
         <div class="pricing-cta-wrap">
-          <!-- TODO: replace with real Lemon Squeezy variant ID -->
           <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_PACK"
              class="btn btn-yellow lemonsqueezy-button">[ GET STARTER PACK ]</a>
+        </div>
+      </div>
+
+      <!-- Card 3: Full Bundle — FEATURED -->
+      <div class="pricing-card featured reveal">
+        <div class="pricing-badge">BEST VALUE</div>
+        <div class="pricing-plan">FULL BUNDLE</div>
+        <div class="pricing-price">€59</div>
+        <div class="pricing-tagline">All 35 games, one payment</div>
+        <ul class="pricing-features">
+          <li>✓ All 35 arcade error pages</li>
+          <li>✓ Every error code from 400 to 526</li>
+          <li>✓ Single-use license — 1 project</li>
+          <li>✓ New games added regularly</li>
+          <li>✓ Commercial use</li>
+          <li>✓ Instant download — one zip</li>
+        </ul>
+        <div class="pricing-cta-wrap">
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
+             class="btn btn-red lemonsqueezy-button">[ GET FULL BUNDLE ]</a>
+        </div>
+      </div>
+
+      <!-- Card 4: Agency License -->
+      <div class="pricing-card purple-border reveal">
+        <div class="pricing-badge" style="background:var(--purple);color:#fff">AGENCY</div>
+        <div class="pricing-plan">AGENCY LICENSE</div>
+        <div class="pricing-price" style="color:var(--purple);text-shadow:var(--purple-glow)">€149</div>
+        <div class="pricing-tagline">All 35 games, unlimited projects</div>
+        <ul class="pricing-features">
+          <li>✓ All 35 arcade error pages</li>
+          <li>✓ Deploy to unlimited client projects</li>
+          <li>✓ Extended commercial license</li>
+          <li>✓ Use across all websites you manage</li>
+          <li>✓ No per-project fees, ever</li>
+          <li>✓ Instant download — one zip</li>
+        </ul>
+        <div class="pricing-cta-wrap">
+          <a href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_AGENCY"
+             class="btn btn-purple lemonsqueezy-button">[ GET AGENCY LICENSE ]</a>
         </div>
       </div>
 
     </div>
 
     <p class="pricing-assurance reveal">
-      Handled by Lemon Squeezy · EU VAT included · Instant download · No subscription required for single purchases
+      Handled by Lemon Squeezy · EU VAT included · Instant download · Secure payment
     </p>
+
+    <div class="pricing-license-row reveal">
+      <div class="pricing-license-box">
+        <strong>[ SINGLE-USE LICENSE ]</strong>
+        One project. One website. Forever yours.<br>
+        <em>← Starter Pack + Full Bundle</em>
+      </div>
+      <div class="pricing-license-box">
+        <strong>[ AGENCY LICENSE ]</strong>
+        Unlimited client projects. Every website you manage.<br>
+        <em>← Agency tier</em>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1891,8 +1997,8 @@ ARCADE STYLE</h1>
     <div class="footer-grid">
       <div>
         <div class="footer-logo">[ ARCADE ERRORS ]</div>
-        <div class="footer-tagline">HTTP error pages that don't suck.<br>35 arcade games. Drop-in HTML.</div>
-        <div class="footer-copy">© 2026 arcadeerrors.com</div>
+        <div class="footer-tagline">HTTP error pages that don't suck.<br>35 arcade games. Drop-in HTML.<br><span style="color:rgba(136,136,136,0.6)">A product by <a href="https://4rce.com" style="color:var(--green)" target="_blank" rel="noopener">4rce.com</a></span></div>
+        <div class="footer-copy">© 2026 4rce.com · arcadeerrors.com</div>
       </div>
       <div>
         <ul class="footer-links">
@@ -1910,8 +2016,15 @@ ARCADE STYLE</h1>
         No excuses for boring 404 pages.
       </div>
     </div>
+    <div class="footer-also-by">
+      <div class="label">// ALSO BY 4RCE.COM</div>
+      <div class="products">
+        <span><a href="https://flaiwheel.app" target="_blank" rel="noopener">flaiwheel.app</a> <span class="product-desc">— AI knowledge base for dev teams</span></span>
+        <span><a href="https://aicollab.app" target="_blank" rel="noopener">aicollab.app</a> <span class="product-desc">— AI collaboration tools</span></span>
+      </div>
+    </div>
     <div class="footer-bottom">
-      Payments by Lemon Squeezy · arcadeerrors.com · 2026
+      © 2026 4rce.com · arcadeerrors.com · Payments by Lemon Squeezy
     </div>
   </div>
 </footer>
@@ -1933,7 +2046,7 @@ ARCADE STYLE</h1>
         Purchase this game to play it.<br>
         Full playable version included with every purchase.
       </div>
-      <a id="modalBuyBtn" href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_SINGLE"
+      <a id="modalBuyBtn" href="https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_BUNDLE"
          class="modal-buy-btn lemonsqueezy-button">[ BUY €3.90 ]</a>
     </div>
   </div>
@@ -2033,43 +2146,6 @@ ARCADE STYLE</h1>
         }
       });
     });
-  });
-
-  /* ---- Pricing toggle ---- */
-  let isAnnual = false;
-  const priceToggle = document.getElementById('priceToggle');
-  const arcadePrice = document.getElementById('arcadePrice');
-  const arcadePeriod = document.getElementById('arcadePeriod');
-  const arcadeNote = document.getElementById('arcadeNote');
-  const arcadeCtaBtn = document.getElementById('arcadeCtaBtn');
-  const toggleLabelMonth = document.getElementById('toggleLabelMonth');
-  const toggleLabelYear = document.getElementById('toggleLabelYear');
-
-  function togglePricing() {
-    isAnnual = !isAnnual;
-    priceToggle.classList.toggle('annual', isAnnual);
-
-    if (isAnnual) {
-      arcadePrice.textContent = '€39';
-      arcadePeriod.textContent = 'per year · €3.25/month';
-      arcadeNote.style.visibility = 'visible';
-      /* TODO: replace with real Lemon Squeezy variant ID */
-      arcadeCtaBtn.href = 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_ANNUAL';
-      toggleLabelMonth.style.color = 'rgba(0,255,0,0.5)';
-      toggleLabelYear.style.color = 'var(--green)';
-    } else {
-      arcadePrice.textContent = '€4.99';
-      arcadePeriod.textContent = 'per month · cancel anytime';
-      arcadeNote.style.visibility = 'hidden';
-      /* TODO: replace with real Lemon Squeezy variant ID */
-      arcadeCtaBtn.href = 'https://arcadeerrors.lemonsqueezy.com/checkout/buy/VARIANT_ID_MONTHLY';
-      toggleLabelMonth.style.color = 'var(--green)';
-      toggleLabelYear.style.color = 'rgba(0,255,0,0.5)';
-    }
-  }
-
-  priceToggle.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); togglePricing(); }
   });
 
   /* ---- Modal ---- */
