@@ -336,6 +336,8 @@
       justify-content: center;
       flex-wrap: wrap;
       margin-bottom: 60px;
+      position: relative;
+      z-index: 2; /* above .arcade-cabinet so SVG arch cannot steal clicks from CTAs */
     }
 
     .hero-ctas .btn {
@@ -350,6 +352,7 @@
       z-index: 1;
       margin: 0 auto;
       width: min(320px, 80vw);
+      pointer-events: none; /* decorative only; keeps hit area from overlapping hero buttons */
     }
 
     .cabinet-svg {
