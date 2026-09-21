@@ -1,0 +1,42 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Gitleaks config — arcadeerrors-website (PUBLIC repo)
+#
+# Deliberately NOT the shared github-rep house config. This repository is public,
+# so it carries only the upstream default ruleset plus allowlists that this repo
+# actually needs. Rules and allowlists for unrelated private projects do not
+# belong in a public tree.
+#
+# If the house config is updated, do not blanket-copy it here — port only what a
+# public static site needs.
+#
+# Do not add an allowlist entry for a private project's value. Every entry below
+# is justified in place.
+# ──────────────────────────────────────────────────────────────────────────────
+
+title = "arcadeerrors-website gitleaks config"
+
+# Maintained upstream default rules — wide coverage, no local weakening.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Placeholders and public-by-design values"
+
+regexes = [
+  # Common documentation placeholders.
+  '''YOUR_[A-Z0-9_]+''',
+  '''<[A-Za-z0-9_\- .]*?(?:REDACTED|PASSWORD|SECRET|KEY|TOKEN|your[_-]?[a-z]*)[A-Za-z0-9_\- .]*?>''',
+  '''\$\{[A-Z0-9_]+\}''',
+  '''(?:xxx+|XXX+|changeme|CHANGEME|placeholder|PLACEHOLDER|example|EXAMPLE)''',
+
+  # ── Paddle.js CLIENT-SIDE token — public by design (embedded in the frontend) ──
+  # Paddle client-side tokens are prefixed live_/test_ and are meant to reach the
+  # browser. The exact known token is pinned rather than a live_/test_ wildcard,
+  # so no unrelated secret is ever hidden by this entry.
+  '''live_8aa7ba6b75585d06090fac64898''',
+]
+
+paths = [
+  '''(^|/)\.git/''',
+  '''\.(png|jpe?g|gif|webp|ico|pdf|ttf|woff2?)$''',
+]
