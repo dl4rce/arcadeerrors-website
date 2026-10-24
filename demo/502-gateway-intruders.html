@@ -7,6 +7,12 @@
   Property : 4rce.com (https://4rce.com)
   Copyright: © 2026 4rce.com. All rights reserved.
 
+  CREATIVE NOTE
+  ----------------------------------------------------------------
+  Re-imagined arcade-style play for this error page. Independent
+  creation — not affiliated with, endorsed by, or a reproduction of
+  any third-party game. Trademarks belong to their respective owners.
+
   FREE LICENSE (502 Gateway Intruders)
   · Free for personal and commercial use on one (1) project
   · No payment required
@@ -22,7 +28,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>502 Bad Gateway - Gateway Intruders</title>
-    <link rel="canonical" href="https://arcadeerrors.com/demo/502-gateway-intruders.html">
     <style>
         body {
             margin: 0;
@@ -121,6 +126,47 @@
             font-size: 1.2rem;
             color: #ff0040;
         }
+    </style>
+
+    <style id="arcade-mobile-layout">
+        /* Scale the presentation only: game physics retain intrinsic canvas coordinates. */
+        html { overflow-x: clip; }
+        body { box-sizing: border-box; width: 100%; min-height: 100vh; min-height: 100svh;
+            padding: 12px; padding-bottom: max(12px, env(safe-area-inset-bottom));
+            justify-content: flex-start; overflow: visible; gap: 10px; }
+        body > * { flex-shrink: 0; min-width: 0; max-width: 100%; box-sizing: border-box; }
+        #gameCanvas { display: block; box-sizing: border-box; width: min(800px, 100%); height: auto; }
+        .canvas-wrapper, .game-wrapper, .game-container { width: min(800px, 100%); max-width: 100%; }
+        .error-header { margin: 0; width: min(800px, 100%); }
+        .error-code { font-size: clamp(2rem, 8vw, 4rem); margin-bottom: 4px; }
+        .error-message { font-size: clamp(1rem, 4vw, 1.5rem); overflow-wrap: anywhere; }
+        .game-subtitle { margin-bottom: 4px; }
+        .controls { margin-top: 0; width: min(800px, 100%); line-height: 1.5; overflow-wrap: anywhere; }
+        .footer { position: static; margin: 4px 0 0; width: min(800px, 100%); overflow-wrap: anywhere; }
+        .footer p { margin: 6px 0; }
+        .arcade-hud { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px;
+            width: min(800px, 100%); }
+        .arcade-hud .score, .arcade-hud .lives { position: static; font-size: 1rem; }
+        .touch-controls { display: none; }
+        @media (any-pointer: coarse) {
+            .touch-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+                gap: 8px 16px; width: min(800px, 100%); }
+            .touch-pad { display: grid; grid-template-columns: repeat(3, 48px); gap: 4px; }
+            .touch-pad button:nth-child(1) { grid-column: 2; }
+            .touch-pad button:nth-child(2) { grid-column: 1; grid-row: 2; }
+            .touch-pad button:nth-child(3) { grid-column: 2; grid-row: 2; }
+            .touch-pad button:nth-child(4) { grid-column: 3; grid-row: 2; }
+            .touch-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; max-width: 100%; }
+            .touch-controls button { min-width: 48px; min-height: 48px; padding: 8px; border: 1px solid #00ff00;
+                border-radius: 6px; background: #101828; color: #fff; font: bold 14px 'Courier New', monospace;
+                touch-action: none; user-select: none; -webkit-user-select: none; }
+            .touch-controls button:active, .touch-controls button.is-held { background: #24503b; }
+            .touch-controls button:focus-visible { outline: 3px solid #ffff00; outline-offset: 2px; }
+            .touch-help { flex-basis: 100%; margin: 0; text-align: center; font-size: .8rem; color: #fff; }
+            .game-subtitle { font-size: .85rem; }
+        }
+        @media (max-height: 500px) { body { gap: 6px; } .error-code { font-size: 2rem; }
+            .error-message { font-size: 1rem; } .error-header { margin: 0; } }
     </style>
 </head>
 <body>
@@ -611,6 +657,98 @@
         
         // Draw stars once at the beginning
         drawStars();
+    </script>
+
+    <script id="arcade-touch-input">
+    (() => {
+        'use strict';
+        const config = {"horizontal":true,"action":"Fire"};
+        const canvas = document.getElementById('gameCanvas');
+        const hud = document.createElement('div');
+        hud.className = 'arcade-hud';
+        document.body.prepend(hud);
+        document.querySelectorAll('body > .score, body > .lives').forEach(el => hud.append(el));
+        const controls = document.createElement('div');
+        controls.className = 'touch-controls';
+        controls.setAttribute('role', 'group');
+        controls.setAttribute('aria-label', 'Touch game controls');
+        document.querySelector('.controls').before(controls);
+        const held = new Map();
+        const counts = new Map();
+        const keyFor = code => code === 'Space' ? ' ' : code.startsWith('Key') ? code.slice(3).toLowerCase() : code;
+        // Dispatch from document so both document and window keyboard handlers receive input.
+        function send(type, code) {
+            document.dispatchEvent(new KeyboardEvent(type, {key: keyFor(code), code, bubbles: true, cancelable: true}));
+        }
+        function release(id) {
+            const item = held.get(id);
+            if (!item) return;
+            clearInterval(item.timer);
+            held.delete(id);
+            const count = counts.get(item.code) - 1;
+            if (count) counts.set(item.code, count);
+            else { counts.delete(item.code); send('keyup', item.code); }
+            if (![...held.values()].some(other => other.button === item.button)) item.button.classList.remove('is-held');
+        }
+        function releaseAll() { [...held.keys()].forEach(release); }
+        function button(group, code, label, pulse = false) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.textContent = label;
+            button.setAttribute('aria-label', label);
+            button.dataset.code = code;
+            group.append(button);
+            button.addEventListener('pointerdown', event => {
+                if (event.button !== 0) return;
+                event.preventDefault();
+                button.setPointerCapture(event.pointerId);
+                if (held.has(event.pointerId)) return;
+                const item = {code, button, timer: null};
+                held.set(event.pointerId, item);
+                counts.set(code, (counts.get(code) || 0) + 1);
+                button.classList.add('is-held');
+                if (counts.get(code) === 1) send('keydown', code);
+                // Grid-hop games are discrete: a held direction repeats complete key strokes.
+                if (pulse) item.timer = setInterval(() => { send('keyup', code); send('keydown', code); }, 180);
+            });
+            ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(type => button.addEventListener(type, event => release(event.pointerId)));
+            // Keyboard/assistive activation without a pointer remains usable.
+            button.addEventListener('click', event => {
+                if (event.detail === 0) { send('keydown', code); send('keyup', code); }
+            });
+        }
+        function pad(codes, labels, name, pulse) {
+            const group = document.createElement('div');
+            group.className = codes.length === 4 ? 'touch-pad' : 'touch-actions';
+            group.setAttribute('role', 'group');
+            group.setAttribute('aria-label', name);
+            controls.append(group);
+            codes.forEach((code, i) => button(group, code, labels[i], pulse));
+        }
+        const arrows = ['ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight'];
+        if (config.pad) pad(config.pad === true ? arrows : config.pad, config.labels || ['Up', 'Left', 'Down', 'Right'], 'Movement', config.pulse);
+        if (config.horizontal) pad(['ArrowLeft','ArrowRight'], ['Left','Right'], 'Movement');
+        if (config.vertical) pad(['ArrowUp','ArrowDown'], ['Jump / climb','Down'], 'Movement');
+        if (config.wasd) pad(['KeyW','KeyA','KeyS','KeyD'], ['Move up','Move left','Move down','Move right'], 'Movement');
+        if (config.aim) pad(arrows, ['Shoot up','Shoot left','Shoot down','Shoot right'], 'Shooting');
+        const actions = document.createElement('div');
+        actions.className = 'touch-actions';
+        controls.append(actions);
+        if (config.action) button(actions, 'Space', config.action);
+        if (config.extra) button(actions, 'KeyZ', config.extra);
+        if (config.start) button(actions, 'Enter', 'Start / continue');
+        button(actions, 'KeyR', 'Restart');
+        if (config.pointer) {
+            const help = document.createElement('p');
+            help.className = 'touch-help';
+            help.textContent = config.pointer + ' Scroll outside the game to move the page.';
+            controls.prepend(help);
+            canvas.style.touchAction = 'none';
+        }
+        window.addEventListener('blur', releaseAll);
+        document.addEventListener('visibilitychange', () => { if (document.hidden) releaseAll(); });
+        window.addEventListener('pagehide', releaseAll);
+    })();
     </script>
 </body>
 </html> 

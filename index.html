@@ -414,7 +414,7 @@
 
     .steps-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
       gap: 24px;
       max-width: 1000px;
       margin: 0 auto;
@@ -1049,6 +1049,7 @@
       position: relative;
       width: min(900px, 95vw);
       height: min(700px, 90vh);
+      height: min(700px, 90dvh);
       border: 1px solid var(--green);
       box-shadow: var(--green-glow);
       background: var(--bg);
@@ -1090,6 +1091,7 @@
 
     .modal-iframe {
       flex: 1;
+      min-height: 0;
       border: none;
       width: 100%;
       background: var(--bg);
@@ -1276,6 +1278,25 @@
       .hero-headline { letter-spacing: 2px; }
       .hero-ctas .btn { width: 100%; text-align: center; }
     }
+    /* Social players are opt-in: no platform requests until Load is selected. */
+    .social-section { padding: 56px 0; border-bottom: 1px solid var(--green-dim); }
+    .social-section .section-title { margin-bottom: 16px; }
+    .social-intro, .social-note { color: #aaa; max-width: 720px; }
+    .social-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin: 28px auto 20px; max-width: 840px; }
+    .social-card { min-width: 0; padding: 20px; border: 1px solid var(--green-dim); background: var(--bg-card); }
+    .social-card h3 { color: var(--yellow); font-size: 16px; margin-bottom: 16px; }
+    .social-player { aspect-ratio: 9 / 16; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; padding: 24px; text-align: center; background: radial-gradient(ellipse at center, #16213e, #050508 75%); border: 1px solid #333; }
+    .social-play-symbol { font-size: 56px; color: var(--green); text-shadow: var(--green-glow); }
+    .social-player p { color: #bbb; font-size: 13px; }
+    .social-player:has(iframe) { padding: 0; background: #050508; }
+    .social-player iframe { width: 100%; height: 100%; border: 0; }
+    .social-card .btn { min-height: 44px; white-space: normal; }
+    .social-original { display: inline-block; margin-top: 16px; text-decoration: underline; text-underline-offset: 4px; padding: 8px 0; }
+    .social-note { font-size: 12px; }
+    @media (max-width: 600px) {
+      .social-grid { grid-template-columns: minmax(0, 1fr); max-width: 380px; }
+      .social-section { padding: 40px 0; }
+    }
   </style>
 </head>
 <body>
@@ -1424,6 +1445,35 @@ ARCADE STYLE</h1>
   </div>
 </section>
 
+
+<!-- Featured posts: original links remain available if embeds are blocked. -->
+<section class="social-section" id="watch" aria-labelledby="watch-title">
+  <div class="container">
+    <h2 class="section-title" id="watch-title">▶ WATCH ARCADE ERRORS IN ACTION</h2>
+    <p class="social-intro">An error page doesn't have to be a dead end. Watch these posts, then try the free playable demo.</p>
+    <div class="social-grid">
+      <article class="social-card">
+        <h3>Instagram // Reel</h3>
+        <div class="social-player" id="instagram-player">
+          <span class="social-play-symbol" aria-hidden="true">▶</span>
+          <p>Load the Instagram player to watch this reel here.</p>
+          <button type="button" class="btn btn-green" data-social="instagram" aria-controls="instagram-player">[ LOAD INSTAGRAM VIDEO ]</button>
+        </div>
+        <a class="social-original" href="https://www.instagram.com/reel/DeNKz8VyRDY/" target="_blank" rel="noopener noreferrer">Watch original on Instagram ↗</a>
+      </article>
+      <article class="social-card">
+        <h3>TikTok // @timothy_bramlett</h3>
+        <div class="social-player" id="tiktok-player">
+          <span class="social-play-symbol" aria-hidden="true">▶</span>
+          <p>Load the TikTok player to watch this video here.</p>
+          <button type="button" class="btn btn-green" data-social="tiktok" aria-controls="tiktok-player">[ LOAD TIKTOK VIDEO ]</button>
+        </div>
+        <a class="social-original" href="https://www.tiktok.com/@timothy_bramlett/video/7694018950920703246" target="_blank" rel="noopener noreferrer">Watch original on TikTok ↗</a>
+      </article>
+    </div>
+    <p class="social-note">Loading a player connects to Instagram or TikTok, which may collect usage data and use cookies. Playback may require another tap. If a player is unavailable or blocked, use the original-post link. No autoplay.</p>
+  </div>
+</section>
 
 <!-- ============================================================
      HOW IT WORKS
@@ -2222,6 +2272,23 @@ ARCADE STYLE</h1>
      JAVASCRIPT
 ============================================================ -->
 <script>
+  /* ---- Opt-in social players; never inject third-party platform scripts ---- */
+  document.querySelectorAll('[data-social]').forEach(button => {
+    button.addEventListener('click', () => {
+      const instagram = button.dataset.social === 'instagram';
+      const frame = document.createElement('iframe');
+      frame.src = instagram
+        ? 'https://www.instagram.com/reel/DeNKz8VyRDY/embed/'
+        : 'https://www.tiktok.com/player/v1/7694018950920703246?autoplay=0';
+      frame.title = instagram ? 'Instagram reel — Arcade Errors' : 'TikTok video by @timothy_bramlett — Arcade Errors';
+      frame.allow = 'fullscreen; encrypted-media; picture-in-picture';
+      frame.allowFullscreen = true;
+      frame.referrerPolicy = 'strict-origin-when-cross-origin';
+      const player = button.closest('.social-player');
+      player.replaceChildren(frame);
+    });
+  });
+
   /* ---- Star canvas ---- */
   (function initStars() {
     const canvas = document.getElementById('starCanvas');
